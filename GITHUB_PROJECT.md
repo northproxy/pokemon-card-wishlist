@@ -66,7 +66,7 @@ Filter issues with:
 | Priority | P0, P1, P2, P3 |
 | Type | Feature, Task, Bug, Research, Documentation, Decision |
 | Area | Data, Database, Import, Infrastructure, UI, Security, Documentation |
-| Milestone | M0, M1, M2, M3, M4, M5, M6, M7 |
+| Project phase | M0, M1, M2, M3, M4, M5, M6, M7 |
 | Effort | XS, S, M, L, XL |
 | Learning value | Low, Medium, High |
 | Risk | Low, Medium, High |
