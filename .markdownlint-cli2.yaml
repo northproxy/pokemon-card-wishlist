@@ -1,15 +1,11 @@
 config:
   MD001: false
-  MD003:
-    style: atx
-  MD004:
-    style: dash
+  MD003: false
+  MD004: false
   MD013: false
   MD024:
     siblings_only: true
   MD041: false
   MD060: false
-
-frontMatter: "(^---\\s*$[^]*?^---\\s*$)(\\r\\n|\\r|\\n|$)"
 
 gitignore: true
