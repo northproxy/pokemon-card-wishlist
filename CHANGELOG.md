@@ -32,6 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * Separate concepts for canonical cards, editions, language and finish variants, Cardmarket products, and price snapshots.
 * Informational canonical-card price rule based on the minimum supported non-null Cardmarket `avg30`.
 * Explicit `unmatched_duplicate_candidate` handling for duplicate-like Cardmarket source products.
+* Basic Markdown validation through GitHub Actions.
+* Project-specific Markdown lint configuration in `.markdownlint-cli2.yaml`.
 
 ### Changed
 
@@ -54,6 +56,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * Validated deterministic image metadata for all `164` canonical Primal Clash cards.
 * Validated unique small and large image URLs using the expected Pokémon TCG image path pattern.
 * Validated the permanent Primal Clash fixture checks for structure, counts, mapping coverage, controlled statuses, exclusions, unresolved-status handling, and image metadata.
+* Validated the `Markdown validation` GitHub Actions workflow against the current repository documentation.
+* Confirmed that all tracked Markdown files pass the configured lint rules.
 
 ### Security
 
@@ -75,7 +79,6 @@ The following remain planned and are not yet implemented or validated:
 
 * issue templates;
 * pull request template;
-* Markdown validation through GitHub Actions;
 * initial release roadmap;
 * GitHub Project views and fields;
 * Docker and Docker Compose infrastructure;
