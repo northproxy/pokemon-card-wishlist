@@ -29,6 +29,6 @@ steps:
     with:
       globs: |
         **/*.md
-        #docs/chatgpt_project/**
-        #tmp/**
+        !docs/chatgpt_project/**
+        !tmp/**
 ```
