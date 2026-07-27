@@ -1,0 +1,52 @@
+# Temporary files
+tmp/
+*.tmp
+*.log
+
+# Raw and generated data
+data/raw/*
+data/staging/*
+data/reports/*
+
+# Large image collections
+images/raw/*
+
+# Preserve directory structure
+!data/raw/.gitkeep
+!data/staging/.gitkeep
+!data/reports/.gitkeep
+!images/raw/.gitkeep
+
+# Local environment
+.env
+.env.*
+!.env.example
+tree.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Internal ChatGPT project notes
+docs/chatgpt_project/
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Database and backup files
+*.sql
+*.dump
+*.backup
+*.sqlite
+*.db
+
+# Archives
+*.zip
+*.7z
+*.tar
+*.tar.gz

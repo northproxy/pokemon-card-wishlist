@@ -1,0 +1,297 @@
+"""
+Script: analyze_primal_clash_product_ordering.py
+
+Purpose:
+    Analyse whether ascending Cardmarket product IDs consistently align with
+    ascending canonical collector numbers inside ambiguous Primal Clash groups.
+
+    The script classifies groups into:
+    - order-testable: exactly two canonical cards and two products;
+    - single-card-multiple-products;
+    - multiple-cards-extra-products;
+    - other unresolved structures.
+
+    This script reports an ordering hypothesis only. It does not modify
+    mapping-review.csv and does not confirm any mapping.
+
+Lifecycle:
+    Temporary discovery utility.
+
+Removal:
+    May be deleted after the ordering hypothesis is either rejected or
+    documented and implemented as an explicit mapping rule with permanent
+    validation coverage.
+"""
+
+from __future__ import annotations
+
+import csv
+from collections import defaultdict
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+FIXTURE_DIR = REPO_ROOT / "data" / "fixtures" / "primal-clash"
+
+MAPPING_REVIEW_FILE = FIXTURE_DIR / "mapping-review.csv"
+
+
+def require_file(path: Path) -> None:
+    """Stop execution when a required file does not exist."""
+    if not path.is_file():
+        raise FileNotFoundError(f"Required file not found: {path}")
+
+
+def load_rows(path: Path) -> list[dict[str, str]]:
+    """Load the generated mapping-review CSV."""
+    with path.open("r", encoding="utf-8-sig", newline="") as file:
+        reader = csv.DictReader(file)
+
+        required_columns = {
+            "canonical_card_id",
+            "collector_number",
+            "canonical_name",
+            "cardmarket_product_id",
+            "cardmarket_product_name",
+            "cardmarket_metacard_id",
+            "mapping_status",
+        }
+
+        actual_columns = set(reader.fieldnames or [])
+        missing_columns = required_columns - actual_columns
+
+        if missing_columns:
+            missing = ", ".join(sorted(missing_columns))
+            raise ValueError(
+                f"Missing columns in {path.name}: {missing}"
+            )
+
+        return [
+            {
+                key: (value or "").strip()
+                for key, value in row.items()
+            }
+            for row in reader
+        ]
+
+
+def numeric_key(value: str) -> int:
+    """Convert an expected numeric identifier to an integer."""
+    text = value.strip()
+
+    if not text.isdigit():
+        raise ValueError(f"Expected numeric value, got: {value!r}")
+
+    return int(text)
+
+
+def main() -> None:
+    require_file(MAPPING_REVIEW_FILE)
+
+    rows = load_rows(MAPPING_REVIEW_FILE)
+
+    ambiguous_rows = [
+        row
+        for row in rows
+        if (
+            row["mapping_status"] == "ambiguous"
+            and row["canonical_card_id"]
+            and row["cardmarket_product_id"]
+            and row["cardmarket_metacard_id"]
+        )
+    ]
+
+    groups: dict[str, list[dict[str, str]]] = defaultdict(list)
+
+    for row in ambiguous_rows:
+        groups[row["cardmarket_metacard_id"]].append(row)
+
+    order_testable_groups = []
+    single_card_multiple_products = []
+    multiple_cards_extra_products = []
+    other_groups = []
+
+    for metacard_id, group_rows in groups.items():
+        cards = {
+            row["canonical_card_id"]: {
+                "collector_number": row["collector_number"],
+                "canonical_name": row["canonical_name"],
+            }
+            for row in group_rows
+        }
+
+        products = {
+            row["cardmarket_product_id"]: {
+                "product_name": row["cardmarket_product_name"],
+            }
+            for row in group_rows
+        }
+
+        card_count = len(cards)
+        product_count = len(products)
+
+        group = {
+            "metacard_id": metacard_id,
+            "cards": cards,
+            "products": products,
+        }
+
+        if card_count == 2 and product_count == 2:
+            order_testable_groups.append(group)
+        elif card_count == 1 and product_count > 1:
+            single_card_multiple_products.append(group)
+        elif card_count > 1 and product_count > card_count:
+            multiple_cards_extra_products.append(group)
+        else:
+            other_groups.append(group)
+
+    print("Primal Clash product-ordering analysis")
+    print()
+
+    print(f"Ambiguous metacard groups: {len(groups):,}")
+    print(f"- order-testable 2 cards / 2 products: {len(order_testable_groups):,}")
+    print(
+        "- single card / multiple products: "
+        f"{len(single_card_multiple_products):,}"
+    )
+    print(
+        "- multiple cards / extra products: "
+        f"{len(multiple_cards_extra_products):,}"
+    )
+    print(f"- other unresolved structures: {len(other_groups):,}")
+
+    print()
+    print("Order-testable groups:")
+    print(
+        "The following pairs are hypotheses only. "
+        "They are generated by ascending collector number and idProduct."
+    )
+
+    for group in sorted(
+        order_testable_groups,
+        key=lambda item: min(
+            numeric_key(card["collector_number"])
+            for card in item["cards"].values()
+        ),
+    ):
+        sorted_cards = sorted(
+            group["cards"].items(),
+            key=lambda item: numeric_key(
+                item[1]["collector_number"]
+            ),
+        )
+
+        sorted_products = sorted(
+            group["products"].items(),
+            key=lambda item: numeric_key(item[0]),
+        )
+
+        first_card_name = sorted_cards[0][1]["canonical_name"]
+
+        print()
+        print(
+            f"- idMetacard={group['metacard_id']} | "
+            f"{first_card_name}"
+        )
+
+        for (
+            (card_id, card),
+            (product_id, product),
+        ) in zip(sorted_cards, sorted_products):
+            print(
+                f"    hypothesis: "
+                f"{card_id} "
+                f"(#{card['collector_number']}) "
+                f"-> {product_id} "
+                f"({product['product_name']})"
+            )
+
+    print()
+    print("Single-card groups with multiple products:")
+
+    for group in sorted(
+        single_card_multiple_products,
+        key=lambda item: min(
+            numeric_key(card["collector_number"])
+            for card in item["cards"].values()
+        ),
+    ):
+        cards = sorted(
+            group["cards"].items(),
+            key=lambda item: numeric_key(
+                item[1]["collector_number"]
+            ),
+        )
+
+        products = sorted(
+            group["products"].items(),
+            key=lambda item: numeric_key(item[0]),
+        )
+
+        card_id, card = cards[0]
+
+        print(
+            f"- {card_id} | "
+            f"#{card['collector_number']} | "
+            f"{card['canonical_name']} | "
+            f"idMetacard={group['metacard_id']} | "
+            f"products={', '.join(product_id for product_id, _ in products)}"
+        )
+
+    print()
+    print("Groups with more products than canonical cards:")
+
+    for group in sorted(
+        multiple_cards_extra_products,
+        key=lambda item: min(
+            numeric_key(card["collector_number"])
+            for card in item["cards"].values()
+        ),
+    ):
+        cards = sorted(
+            group["cards"].items(),
+            key=lambda item: numeric_key(
+                item[1]["collector_number"]
+            ),
+        )
+
+        products = sorted(
+            group["products"].items(),
+            key=lambda item: numeric_key(item[0]),
+        )
+
+        card_labels = ", ".join(
+            f"{card_id} (#{card['collector_number']})"
+            for card_id, card in cards
+        )
+
+        product_ids = ", ".join(
+            product_id
+            for product_id, _ in products
+        )
+
+        print(
+            f"- idMetacard={group['metacard_id']} | "
+            f"{cards[0][1]['canonical_name']} | "
+            f"cards={card_labels} | "
+            f"products={product_ids}"
+        )
+
+    if other_groups:
+        print()
+        print("Other unresolved groups:")
+
+        for group in other_groups:
+            print(
+                f"- idMetacard={group['metacard_id']} | "
+                f"cards={len(group['cards'])} | "
+                f"products={len(group['products'])}"
+            )
+
+    print()
+    print("Product-ordering analysis completed.")
+    print("No mappings were modified.")
+
+
+if __name__ == "__main__":
+    main()
