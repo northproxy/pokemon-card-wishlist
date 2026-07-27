@@ -4,6 +4,8 @@ A self-hosted, mobile-friendly MVP for browsing a structured Pokemon card catalo
 
 The project is also a public learning portfolio. It is intended to demonstrate structured project planning, data discovery, architecture decisions, data modelling, infrastructure work, security awareness, validation, documentation, and incremental delivery.
 
+[![Markdown validation](https://github.com/northproxy/pokemon-card-wishlist/actions/workflows/markdown.yml/badge.svg)](https://github.com/northproxy/pokemon-card-wishlist/actions/workflows/markdown.yml)
+
 ## Project status
 
 **Current milestone:** `M1 — Repository foundation`
@@ -87,16 +89,20 @@ The project follows a milestone-based approach:
 - `M6 — Catalogue expansion`
 - `M7 — MVP release`
 
-The first implementation target is Primal Clash as one complete vertical slice. Full catalogue import is intentionally deferred until that slice is validated.
+Primal Clash is the validated discovery vertical slice and will remain the first implementation target. Full catalogue import is intentionally deferred until the implemented vertical slice is validated.
 
-## Documentation
+### Documentation
 
-- [MVP Scope](MVP_SCOPE.md)
-- [Project Plan](PROJECT.md)
-- [Technical Stack](STACK.md)
-- [Architecture Decision Log](DECISIONS.md)
-- [GitHub Project Draft](GITHUB_PROJECT.md)
-- [Learning Log](LEARNING_LOG.md)
+* [MVP Scope](MVP_SCOPE.md)
+* [Project Plan](PROJECT.md)
+* [Release Roadmap](ROADMAP.md)
+* [Technical Stack](STACK.md)
+* [Architecture Decision Log](DECISIONS.md)
+* [GitHub Project Draft](GITHUB_PROJECT.md)
+* [Contributing Guide](CONTRIBUTING.md)
+* [Security Policy](SECURITY.md)
+* [Changelog](CHANGELOG.md)
+* [Learning Log](LEARNING_LOG.md)
 
 ## Success criteria
 

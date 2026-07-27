@@ -20,6 +20,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   * `REVIEW_SUMMARY.md`
 * Repository contribution guidance in `CONTRIBUTING.md`.
 * Initial security policy in `SECURITY.md`.
+* Initial release roadmap in `ROADMAP.md`.
+* GitHub issue templates for tasks, bugs, research, and decisions.
+* Pull request template with validation, security, data-quality, and recovery checks.
+* Basic Markdown validation through GitHub Actions.
+* Project-specific Markdown lint configuration in `.markdownlint-cli2.yaml`.
 * Discovery documentation for source inventory, source fields, record identity, language and variant modelling, image mapping, data-quality findings, and first-expansion selection.
 * Primal Clash vertical-slice fixtures for:
 
@@ -77,9 +82,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 The following remain planned and are not yet implemented or validated:
 
-* issue templates;
-* pull request template;
-* initial release roadmap;
 * GitHub Project views and fields;
 * Docker and Docker Compose infrastructure;
 * PostgreSQL deployment;

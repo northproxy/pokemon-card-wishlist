@@ -101,38 +101,55 @@ Filter issues with:
 
 ### M0 — Discovery
 
+**Status:** Completed and validated on 2026-07-27
+
 Completed or accepted:
 
-- Inventory the available Cardmarket and Pokémon TCG Data sources.
-- Document representative source fields.
-- Define the canonical-card boundary.
-- Accept source-scoped import keys.
-- Separate canonical card, edition, language/finish variant, and market product.
-- Select Primal Clash as the first vertical slice.
-- Define the canonical-card `From` price as the minimum supported non-null `avg30`.
+* Inventoried the available Cardmarket and Pokémon TCG Data sources.
+* Documented representative source fields.
+* Defined the canonical-card boundary.
+* Accepted source-scoped import keys.
+* Separated canonical cards, editions, language and finish variants, and market products.
+* Selected Primal Clash as the first vertical slice.
+* Defined the canonical-card `From` price as the minimum supported non-null `avg30`.
+* Built the reproducible Primal Clash mapping fixture.
+* Replaced inferred product ordering with direct Cardmarket `idProduct` evidence.
+* Validated deterministic canonical-card image metadata.
+* Classified Online Code Card products as excluded.
+* Preserved six unlisted duplicate-like products as `unmatched_duplicate_candidate`.
+* Completed the M0 discovery validation summary and exit review.
 
-Remaining work:
+Deferred decisions:
 
-- Complete the reproducible Primal Clash mapping fixture.
-- Review image filenames and local image mapping feasibility.
-- Classify confirmed, candidate, ambiguous, excluded, unmatched, and rejected records.
-- Document Cardmarket edition and finish evidence for ambiguous products.
-- Define repeated import and upsert behaviour in `ADR-008`.
-- Define rejected, unmatched, and ambiguous record handling in `ADR-009`.
-- Prepare the M0 discovery validation summary and exit review.
+* Define repeated import and upsert behaviour in `ADR-008` during preparation for the physical data model.
+* Define the general rejected, unmatched, and ambiguous record workflow in `ADR-009`.
+* Define backup scope, retention, and restore validation in `ADR-010`.
+
+These decisions remain prerequisites for their respective implementation milestones but do not invalidate the completed M0 vertical-slice discovery result.
 
 ### M1 — Repository foundation
 
-- Create the repository structure.
-- Add and cross-link core documentation.
-- Add issue templates.
-- Add pull request template.
-- Add security notes.
-- Add contribution guidance.
-- Add changelog.
-- Add Markdown validation.
-- Create GitHub Project views and fields.
-- Create the initial release roadmap.
+**Status:** In progress
+
+Completed:
+
+* Created the repository structure.
+* Added and cross-linked the core project documentation.
+* Added issue templates for tasks, bugs, research, and decisions.
+* Added a pull request template.
+* Added security notes in `SECURITY.md`.
+* Added contribution guidance in `CONTRIBUTING.md`.
+* Added `CHANGELOG.md`.
+* Added and validated Markdown checks through GitHub Actions.
+* Created the initial release roadmap in `ROADMAP.md`.
+* Created and published the GitHub repository.
+
+Remaining:
+
+* Create the GitHub Project views and custom fields.
+* Create or transfer the initial roadmap issues into the GitHub Project.
+* Verify all documentation links from the published repository.
+* Complete the M1 exit review.
 
 ### M2 — Infrastructure
 

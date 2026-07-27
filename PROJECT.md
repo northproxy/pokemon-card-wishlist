@@ -14,6 +14,11 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
 - Previous milestone: `M0 — Discovery` completed and validated on 2026-07-27
 - Implementation status: Discovery tooling and the Primal Clash vertical-slice fixtures are validated; application, database, and infrastructure implementation have not started
 - Primary focus: Complete the repository foundation, governance files, contribution workflow, templates, security notes, changelog, roadmap, and Markdown validation
+- Repository status:
+  - the public GitHub repository has been created;
+  - contribution, security, changelog, issue-template, pull-request-template, and roadmap files have been added;
+  - GitHub Actions Markdown validation is implemented and passing;
+  - GitHub Project views, fields, and initial issues remain to be configured.
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
 - Vertical-slice mapping status: Validated
   - `164` canonical cards are covered;
