@@ -2,7 +2,7 @@
 
 ## Status
 
-This document describes the **proposed MVP stack**. Individual technology choices remain provisional until their ADRs are accepted and validated. The catalogue identity model and source-key strategy have already been accepted in `ADR-005`, `ADR-006`, `ADR-007`, and `ADR-011`.
+This document describes the proposed MVP application and infrastructure stack. GitHub is already used as the repository platform, and GitHub Actions Markdown validation is implemented and validated. Other technology choices remain provisional until their ADRs are accepted and validated. The catalogue identity model and source-key strategy have already been accepted in `ADR-005`, `ADR-006`, `ADR-007`, and `ADR-011`.
 
 ## Recommended MVP stack
 
@@ -19,8 +19,8 @@ This document describes the **proposed MVP stack**. Individual technology choice
 | Reverse proxy | Caddy, only if later required | Optional HTTPS and routing layer | Deferred |
 | Database backup | `pg_dump` | Portable logical backup | Proposed |
 | File backup | Encrypted archive or file-level copy | Covers images and configuration | Proposed |
-| Repository | GitHub | Version control, documentation, issues, and project tracking | Proposed |
-| CI | GitHub Actions | Markdown checks first; automated tests later | Proposed |
+| Repository | GitHub | Version control, documentation, issues, and project tracking | Implemented |
+| CI | GitHub Actions | Markdown checks first; automated tests later | Implemented and validated for Markdown |
 
 ## Architecture summary
 

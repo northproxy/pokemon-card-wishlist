@@ -91,18 +91,19 @@ The project follows a milestone-based approach:
 
 Primal Clash is the validated discovery vertical slice and will remain the first implementation target. Full catalogue import is intentionally deferred until the implemented vertical slice is validated.
 
-### Documentation
+## Documentation
 
-* [MVP Scope](MVP_SCOPE.md)
-* [Project Plan](PROJECT.md)
-* [Release Roadmap](ROADMAP.md)
-* [Technical Stack](STACK.md)
-* [Architecture Decision Log](DECISIONS.md)
-* [GitHub Project Draft](GITHUB_PROJECT.md)
-* [Contributing Guide](CONTRIBUTING.md)
-* [Security Policy](SECURITY.md)
-* [Changelog](CHANGELOG.md)
-* [Learning Log](LEARNING_LOG.md)
+- [MVP Scope](MVP_SCOPE.md)
+- [Project Plan](PROJECT.md)
+- [Release Roadmap](ROADMAP.md)
+- [Technical Stack](STACK.md)
+- [Architecture Decision Log](DECISIONS.md)
+- [GitHub Project Draft](GITHUB_PROJECT.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [Learning Log](LEARNING_LOG.md)
+- [Discovery Documentation](docs/discovery/README.md)
 
 ## Success criteria
 

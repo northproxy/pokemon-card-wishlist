@@ -247,68 +247,67 @@ Remaining:
 
 ## First recommended Ready issues
 
-### 1. Complete the Primal Clash mapping fixture
+### 1. Configure the GitHub Project fields and views
 
-**Type:** Research
-**Milestone:** M0
+**Type:** Task
+**Milestone:** M1
 **Priority:** P0
-**Effort:** M
+**Effort:** S
 
 Acceptance criteria:
 
-- all 164 canonical `xy5` cards are present;
-- all Cardmarket expansion `1585` products are represented;
-- code cards are explicitly excluded;
-- each mapping has a status, method, and evidence reference;
-- ambiguous edition or finish mappings are not silently resolved;
-- linked price records and source timestamps are preserved.
+- the project contains the approved custom fields;
+- the Roadmap, Board, Current milestone, Documentation, Risks and decisions, and Data quality views exist;
+- the Current milestone view filters to `M1`;
+- field values match this document;
+- the configuration is verified from the published GitHub Project.
 
-### 2. Define repeated import and upsert behaviour
+### 2. Create the initial M1 issue set
 
-**Type:** Decision
-**Milestone:** M0
+**Type:** Task
+**Milestone:** M1
 **Priority:** P0
-**Effort:** M
+**Effort:** S
 
 Acceptance criteria:
 
-- conflict targets use the accepted source-scoped keys;
-- insert, update, unchanged, missing-from-source, and retired-source cases are defined;
-- wishlist preservation rules are documented;
-- repeat-import validation is specified;
-- the accepted decision is recorded as `ADR-008`.
+- remaining M1 work is represented by GitHub issues;
+- every issue has Type, Area, Milestone, Priority, Effort, Learning value, and Risk values;
+- completed M0 research is not recreated as active work;
+- issue acceptance criteria distinguish implementation from validation.
 
-### 3. Define rejected, unmatched, and ambiguous record handling
+### 3. Verify published repository documentation links
 
-**Type:** Decision
-**Milestone:** M0
+**Type:** Documentation
+**Milestone:** M1
 **Priority:** P0
-**Effort:** M
+**Effort:** XS
 
 Acceptance criteria:
 
-- rejected, unmatched, ambiguous, candidate, confirmed, and excluded states are defined;
-- each state has required evidence and review fields;
-- no ambiguous mapping is silently promoted to confirmed;
-- import-report requirements are documented;
-- the accepted decision is recorded as `ADR-009`.
+- every link in `README.md` opens successfully from GitHub;
+- the Markdown validation badge opens the correct workflow;
+- issue-template contact links open successfully;
+- no tracked document links to `docs/chatgpt_project/`;
+- broken or misleading links are corrected.
 
-### 4. Review image naming and mapping feasibility
+### 4. Complete the M1 exit review
 
-**Type:** Research
-**Milestone:** M0
-**Priority:** P1
-**Effort:** M
+**Type:** Task
+**Milestone:** M1
+**Priority:** P0
+**Effort:** S
 
 Acceptance criteria:
 
-- image directory structure is documented;
-- naming rules are described;
-- canonical-card and edition-level mapping possibilities are tested;
-- missing and duplicate image risks are recorded;
-- Primal Clash image coverage is reported.
+- all M1 deliverables are present;
+- GitHub Project configuration is validated;
+- Markdown validation passes;
+- repository purpose, scope, status, decisions, and next work are clear;
+- planned, implemented, and validated states are consistent;
+- the result is recorded in `CHANGELOG.md`, `PROJECT.md`, `ROADMAP.md`, and `LEARNING_LOG.md`.
 
-## Example decision issue
+## Example future decision issue
 
 ### Title
 

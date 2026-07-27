@@ -102,6 +102,9 @@ The following remain intentionally unresolved:
   `idProduct` and `dateAdded`, or which lack a directly mapped sibling;
 - final acceptance of NocoDB, PostgreSQL, Tailscale, and local image storage.
 
-These decisions require validation during the remaining M0 work and later
-milestones. The Primal Clash direct-ID mapping and its six
-`unmatched_duplicate_candidate` records are no longer unresolved.
+These decisions are intentionally deferred to their implementation-dependent
+milestones. `ADR-008` and `ADR-009` must be resolved before the physical data
+model and repeatable import workflow are finalised, while `ADR-010` must be
+resolved during infrastructure and recovery planning. The Primal Clash direct-ID
+mapping and its six `unmatched_duplicate_candidate` records are no longer
+unresolved.

@@ -136,8 +136,6 @@ Complete a reproducible Primal Clash mapping fixture, classify confirmed and amb
 
 ---
 
----
-
 ## 2026-07-27 — Replacing inferred product order with direct Cardmarket IDs
 
 #### What I worked on

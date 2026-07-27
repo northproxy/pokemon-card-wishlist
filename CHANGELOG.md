@@ -37,8 +37,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * Separate concepts for canonical cards, editions, language and finish variants, Cardmarket products, and price snapshots.
 * Informational canonical-card price rule based on the minimum supported non-null Cardmarket `avg30`.
 * Explicit `unmatched_duplicate_candidate` handling for duplicate-like Cardmarket source products.
-* Basic Markdown validation through GitHub Actions.
-* Project-specific Markdown lint configuration in `.markdownlint-cli2.yaml`.
 
 ### Changed
 
