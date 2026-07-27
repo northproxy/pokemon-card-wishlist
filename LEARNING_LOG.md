@@ -207,3 +207,64 @@ This handling was accepted in `ADR-012`.
 
 Review the remaining M0 exit criteria and identify the next unresolved discovery
 dependency before beginning the database schema.
+
+---
+
+## 2026-07-27 — Turning repository plans into a validated GitHub workflow
+
+#### What I worked on
+
+Configured the GitHub Project for `Pokemon Card Wishlist`, created the initial
+M1 issue set, verified the published documentation links, and completed the
+`M1 — Repository foundation` exit review.
+
+#### What I learned
+
+Project documentation and task tracking serve different purposes. Documents
+record scope, decisions, milestone definitions, and long-lived guidance, while
+GitHub issues and Project views make the current work state visible and
+operational.
+
+Custom fields such as `Status`, `Priority`, `Type`, `Area`, `Project phase`,
+`Effort`, `Learning value`, and `Risk` allow the same issues to be viewed by
+workflow state, current milestone, documentation area, decision risk, or data
+quality without duplicating the issues.
+
+I also learned that implementation and validation are separate states. A view or
+workflow should not be marked `Done` until it has been tested with real issues
+and its filters, links, and published results have been checked.
+
+#### What was difficult
+
+GitHub reserves some field names, including `Milestone`, so the project-specific
+phase field had to be named `Project phase`. Some filters were easier to create
+through the field selector than by typing them manually. Relative links that
+look plausible in source files also require verification from the published
+GitHub interface.
+
+#### Decision or change
+
+`M1 — Repository foundation` is completed and validated. The GitHub Project is
+now the operational task-tracking layer, while the repository documents remain
+the source of scope, decisions, milestone criteria, and portfolio evidence.
+
+The current milestone advances to `M2 — Infrastructure`. Infrastructure work
+will continue one documented, reversible, and validated action at a time.
+
+#### Evidence
+
+- configured GitHub Project fields and views;
+- four classified M1 GitHub issues;
+- validated `Current milestone` view;
+- verified README documentation links;
+- verified Markdown validation workflow badge;
+- verified issue-template contact links;
+- successful GitHub Actions Markdown validation;
+- clean Git working tree and synchronised `main` branch;
+- M1 deliverable-presence check against `PROJECT.md`.
+
+#### Next experiment
+
+Select the first M2 infrastructure task, confirm its dependencies and rollback
+path, and begin with one reproducible action on the target Raspberry Pi or its
+prepared environment.

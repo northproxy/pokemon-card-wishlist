@@ -10,15 +10,18 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
 
 ## Current status
 
-- Current milestone: `M1 — Repository foundation`
-- Previous milestone: `M0 — Discovery` completed and validated on 2026-07-27
-- Implementation status: Discovery tooling and the Primal Clash vertical-slice fixtures are validated; application, database, and infrastructure implementation have not started
-- Primary focus: Complete the repository foundation, governance files, contribution workflow, templates, security notes, changelog, roadmap, and Markdown validation
+- Current milestone: `M2 — Infrastructure`
+- Completed milestones:
+  - `M0 — Discovery` completed and validated on 2026-07-27;
+  - `M1 — Repository foundation` completed and validated on 2026-07-27.
+- Implementation status: Discovery tooling, the Primal Clash vertical-slice fixtures, the repository foundation, the GitHub Project workflow, and Markdown validation are validated; application, database, and infrastructure implementation have not started
+- Primary focus: Select and execute the first reproducible M2 infrastructure task while preserving the approved security, storage, backup, and recovery boundaries
 - Repository status:
   - the public GitHub repository has been created;
   - contribution, security, changelog, issue-template, pull-request-template, and roadmap files have been added;
   - GitHub Actions Markdown validation is implemented and passing;
-  - GitHub Project views, fields, and initial issues remain to be configured.
+  - GitHub Project fields, views, and the initial M1 issue set are configured and validated;
+  - published README and issue-template contact links have been checked.
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
 - Vertical-slice mapping status: Validated
   - `164` canonical cards are covered;
@@ -33,7 +36,7 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - all URLs use HTTPS and the expected `images.pokemontcg.io` host;
   - all URL paths match the deterministic set-code and collector-number pattern;
   - remote availability, downloading, local storage, and backup remain future implementation and validation work.
-- Current milestone focus: Complete and validate the professional repository foundation before infrastructure or schema implementation
+- Current milestone focus: Begin `M2 — Infrastructure` with one documented, reversible, and validated action at a time
 
 ## Delivery principles
 

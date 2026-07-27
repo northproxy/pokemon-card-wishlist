@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * Pull request template with validation, security, data-quality, and recovery checks.
 * Basic Markdown validation through GitHub Actions.
 * Project-specific Markdown lint configuration in `.markdownlint-cli2.yaml`.
+* GitHub Project fields and views for milestone, workflow, priority, effort, learning value, risk, documentation, decisions, and data-quality tracking.
+* Initial GitHub issue set for completing and validating `M1 — Repository foundation`.
 * Discovery documentation for source inventory, source fields, record identity, language and variant modelling, image mapping, data-quality findings, and first-expansion selection.
 * Primal Clash vertical-slice fixtures for:
 
@@ -41,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 * Updated the repository status from `M0 — Discovery` to `M1 — Repository foundation`.
+* Updated the current milestone from `M1 — Repository foundation` to `M2 — Infrastructure` after the M1 exit review.
 * Replaced inferred Cardmarket product-order matching with direct `idProduct` evidence from individual product pages.
 * Clarified the distinction between `Proposed`, `Planned`, `Implemented`, and `Validated`.
 * Clarified that the initial wishlist references canonical cards rather than specific market variants.
@@ -61,6 +64,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * Validated the permanent Primal Clash fixture checks for structure, counts, mapping coverage, controlled statuses, exclusions, unresolved-status handling, and image metadata.
 * Validated the `Markdown validation` GitHub Actions workflow against the current repository documentation.
 * Confirmed that all tracked Markdown files pass the configured lint rules.
+* Completed and validated `M1 — Repository foundation` on 2026-07-27.
+* Validated the GitHub Project fields, views, filters, sorting, and initial M1 issue set.
+* Verified all public README documentation links, the Markdown workflow badge, and the issue-template contact links.
+* Confirmed that the required M1 repository files are present and the working tree is clean.
 
 ### Security
 
@@ -74,13 +81,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * Standardised the project name as `Pokemon Card Wishlist`.
 * Standardised milestone names from `M0` through `M7`.
 * Updated the public project status to reflect completion of discovery and the start of repository-foundation work.
+* Updated the public project status to reflect completion of the repository foundation and the start of infrastructure work.
 * Added contribution workflow, commit guidance, pull request expectations, validation evidence requirements, and scope-control rules.
 
 ### Planned
 
 The following remain planned and are not yet implemented or validated:
 
-* GitHub Project views and fields;
 * Docker and Docker Compose infrastructure;
 * PostgreSQL deployment;
 * NocoDB deployment;

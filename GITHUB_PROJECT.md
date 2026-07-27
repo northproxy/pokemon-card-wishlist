@@ -1,4 +1,4 @@
-# GitHub Project Draft
+# GitHub Project Configuration
 
 ## Project title
 
@@ -8,11 +8,11 @@ Pokemon Card Wishlist
 
 Build a self-hosted, mobile-friendly Pokemon card catalogue with wishlist selection and CSV export. Use the project to demonstrate structured delivery, data discovery, architecture decisions, documentation, data modelling, infrastructure work, security awareness, validation, and continuous learning.
 
-## Recommended views
+## Implemented views
 
 ### Roadmap
 
-Group issues by milestone:
+Group issues by project phase:
 
 - `M0 — Discovery`
 - `M1 — Repository foundation`
@@ -44,21 +44,17 @@ Filter to the active milestone and sort by:
 
 ### Documentation
 
-Filter issues with the `documentation` label.
+Filter items with `Area = Documentation`.
 
 ### Risks and decisions
 
-Filter issues with the `risk` or `decision` label.
+Filter items with `Type = Decision` or `Risk = High`.
 
 ### Data quality
 
-Filter issues with:
+Filter items with `Area = Data`, `Area = Database`, or `Area = Import`.
 
-- `data-quality`;
-- `blocked`;
-- Area = Data or Database.
-
-## Suggested custom fields
+## Implemented custom fields
 
 | Field | Values |
 |---|---|
@@ -129,9 +125,9 @@ These decisions remain prerequisites for their respective implementation milesto
 
 ### M1 — Repository foundation
 
-**Status:** In progress
+**Status:** Completed and validated on 2026-07-27
 
-Completed:
+Completed outcomes:
 
 * Created the repository structure.
 * Added and cross-linked the core project documentation.
@@ -139,19 +135,18 @@ Completed:
 * Added a pull request template.
 * Added security notes in `SECURITY.md`.
 * Added contribution guidance in `CONTRIBUTING.md`.
-* Added `CHANGELOG.md`.
+* Added `CHANGELOG.md` and `ROADMAP.md`.
 * Added and validated Markdown checks through GitHub Actions.
-* Created the initial release roadmap in `ROADMAP.md`.
 * Created and published the GitHub repository.
-
-Remaining:
-
-* Create the GitHub Project views and custom fields.
-* Create or transfer the initial roadmap issues into the GitHub Project.
-* Verify all documentation links from the published repository.
-* Complete the M1 exit review.
+* Configured the GitHub Project fields and views.
+* Created and classified the initial M1 issue set.
+* Validated the `Current milestone` view with real issues.
+* Verified the public README links, workflow badge, and issue-template contact links.
+* Completed the M1 exit review against `PROJECT.md`.
 
 ### M2 — Infrastructure
+
+**Status:** Current milestone; ready to start
 
 - Prepare Raspberry Pi OS.
 - Connect and validate SSD.
@@ -245,12 +240,12 @@ Remaining:
 - Verify backup and restore documentation.
 - Tag version `v0.1.0`.
 
-## First recommended Ready issues
+## M1 validation issue set
 
 ### 1. Configure the GitHub Project fields and views
 
 **Type:** Task
-**Milestone:** M1
+**Project phase:** M1
 **Priority:** P0
 **Effort:** S
 
@@ -265,21 +260,21 @@ Acceptance criteria:
 ### 2. Create the initial M1 issue set
 
 **Type:** Task
-**Milestone:** M1
+**Project phase:** M1
 **Priority:** P0
 **Effort:** S
 
 Acceptance criteria:
 
 - remaining M1 work is represented by GitHub issues;
-- every issue has Type, Area, Milestone, Priority, Effort, Learning value, and Risk values;
+- every issue has Type, Area, Project phase, Priority, Effort, Learning value, and Risk values;
 - completed M0 research is not recreated as active work;
 - issue acceptance criteria distinguish implementation from validation.
 
 ### 3. Verify published repository documentation links
 
 **Type:** Documentation
-**Milestone:** M1
+**Project phase:** M1
 **Priority:** P0
 **Effort:** XS
 
@@ -294,7 +289,7 @@ Acceptance criteria:
 ### 4. Complete the M1 exit review
 
 **Type:** Task
-**Milestone:** M1
+**Project phase:** M1
 **Priority:** P0
 **Effort:** S
 

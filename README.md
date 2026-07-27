@@ -8,13 +8,13 @@ The project is also a public learning portfolio. It is intended to demonstrate s
 
 ## Project status
 
-**Current milestone:** `M1 — Repository foundation`
+**Current milestone:** `M2 — Infrastructure`
 
-`M0 — Discovery` was completed and validated on 2026-07-27.
+`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27.
 
-Discovery tooling and the Primal Clash vertical-slice fixtures are validated. Application, database, and infrastructure implementation have not started.
+Discovery tooling, the Primal Clash vertical-slice fixtures, the repository foundation, the GitHub Project workflow, and Markdown validation are validated. Application, database, and infrastructure implementation have not started.
 
-The current priority is to complete the professional repository foundation, including governance files, contribution workflow, issue and pull request templates, security notes, changelog, release roadmap, and basic Markdown validation.
+The current priority is to prepare and execute the first validated `M2 — Infrastructure` task without bypassing unresolved security, storage, backup, or recovery dependencies.
 
 The first validated vertical slice is:
 
@@ -74,7 +74,7 @@ The initial wishlist references the canonical card, for example `xy5-20`. Editio
 - USB-connected SSD
 - GitHub and GitHub Actions
 
-All stack choices remain proposed until the corresponding ADR is accepted and validated.
+The application and infrastructure stack choices remain proposed until the corresponding ADRs are accepted and validated. GitHub is implemented as the repository platform, and GitHub Actions Markdown validation is implemented and validated.
 
 ## Delivery approach
 

@@ -6,8 +6,8 @@ It distinguishes planned work from implemented and validated results. Dates are 
 
 ## Current status
 
-* Current milestone: `M1 — Repository foundation`
-* Completed milestone: `M0 — Discovery`
+* Current milestone: `M2 — Infrastructure`
+* Completed milestones: `M0 — Discovery`, `M1 — Repository foundation`
 * First planned release: `v0.1.0`
 * Application implementation status: Not started
 * Database implementation status: Not started
@@ -69,9 +69,9 @@ Completed outcomes include:
 
 ### `M1 — Repository foundation`
 
-**Status:** In progress
+**Status:** Completed and validated on 2026-07-27
 
-Planned completion outcomes:
+Completed outcomes:
 
 * professional repository structure;
 * cross-linked core documentation;
@@ -92,7 +92,7 @@ Exit condition:
 
 ### `M2 — Infrastructure`
 
-**Status:** Planned
+**Status:** Ready to start
 
 Planned outcomes:
 
