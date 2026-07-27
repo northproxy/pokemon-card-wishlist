@@ -448,6 +448,367 @@ Negative:
 
 ---
 
+## ADR-008 — Use staging and validated transactional merges for repeated imports
+
+- Status: Proposed
+- Date: 2026-07-27
+- Owners: Project owner
+- Supersedes: N/A
+
+#### Context
+
+Catalogue and market data will be imported repeatedly from external source files.
+
+Repeated imports must:
+
+- create new source entities without uncontrolled duplicates;
+- update changed source-derived values;
+- avoid unnecessary updates for unchanged records;
+- preserve records that disappear temporarily from a source snapshot;
+- keep rejected, unmatched, and ambiguous records reviewable;
+- preserve source traceability;
+- support rollback after a failed merge;
+- avoid modifying user-generated wishlist data.
+
+The accepted source-scoped conflict targets are:
+
+- canonical card: `(source_system, source_card_id)`;
+- market product: `(source_system, source_product_id)`.
+
+Direct upserts into production tables would be simple, but would mix parsing, validation, and production changes in one operation. This would make partial failures, unresolved mappings, validation reporting, and rollback more difficult to control.
+
+Append-only source snapshots provide strong historical traceability, but using append-only storage as the only production model would add unnecessary complexity to catalogue queries and current-state management.
+
+A separate staging and merge process is therefore required before the physical schema and first import workflow are finalised.
+
+#### Decision
+
+Use staging tables followed by a validated transactional merge for catalogue and market-product imports.
+
+The import process must separate:
+
+1. source loading;
+2. staging validation;
+3. production merge;
+4. unresolved-record reporting;
+5. import-run validation.
+
+No production catalogue record may be inserted or updated directly from unvalidated source data.
+
+Use append-only storage where historical traceability is required, including:
+
+- `import_runs`;
+- `market_price_snapshots`;
+- validation evidence;
+- rejected and unresolved source-record evidence.
+
+Production catalogue entities represent the current accepted state. Source snapshots and import evidence remain separately traceable.
+
+`wishlist_items` and other user-generated fields remain outside the catalogue import update boundary. Catalogue imports must not insert, update, replace, or delete wishlist records.
+
+#### Merge outcomes
+
+Each validated staging record must receive a controlled merge outcome.
+
+##### `inserted`
+
+Use `inserted` when a validated staging record has no production record with the same source-scoped conflict target.
+
+The merge must:
+
+- create one production record;
+- preserve the source identifiers;
+- assign or retain the internal surrogate identifier required by the schema;
+- record the result against the current `import_run`.
+
+Dependent records may be inserted only after their required parent records have been merged successfully.
+
+##### `updated`
+
+Use `updated` when a production record exists and one or more import-owned values differ from the validated staging values.
+
+The merge must:
+
+- update only source-derived fields owned by the import process;
+- preserve the production primary key;
+- preserve relationships from user-generated data;
+- record the update against the current `import_run`;
+- update the production modification timestamp.
+
+Comparison must use normalised target values rather than raw source formatting where normalisation rules have been defined.
+
+##### `unchanged`
+
+Use `unchanged` when the production record exists and all compared import-owned values equal the validated staging values.
+
+The merge must:
+
+- perform no production `UPDATE`;
+- preserve the existing modification timestamp;
+- record the record as `unchanged` in the import summary.
+
+Repeating the same validated import must therefore produce no new production rows and no unnecessary production updates.
+
+##### `missing`
+
+Use `missing` when a production record that was previously observed is absent from the current validated authoritative import scope.
+
+A record must not be classified as `missing` when the import contains only a partial or non-authoritative subset of the source.
+
+A `missing` result must:
+
+- preserve the production record;
+- preserve all source identifiers and relationships;
+- preserve any related wishlist data;
+- record evidence of absence against the current `import_run`;
+- remain reviewable.
+
+One missing observation must not automatically retire or delete the production record.
+
+##### `retired`
+
+Use `retired` only when retirement is supported by an explicit source signal or by a separately approved and validated retirement rule.
+
+Retirement must:
+
+- use a controlled inactive state such as `is_active = false` or `retired_at`;
+- preserve the production record and its source identifiers;
+- preserve existing relationships, including wishlist references;
+- exclude the record from ordinary active catalogue views where appropriate;
+- preserve the record for audit and historical review.
+
+Imported entities must not be physically deleted as part of a normal repeated import.
+
+Until sequential source snapshots provide enough evidence for an automatic retirement threshold, missing records remain active and reviewable. Retirement requires explicit confirmation or an explicit source status.
+
+##### `rejected`
+
+Use `rejected` when a source record cannot pass structural or domain validation and therefore cannot participate in the production merge.
+
+Examples include:
+
+- missing required source identifiers;
+- invalid required field types;
+- invalid controlled values;
+- invalid source relationships;
+- unresolved duplicate conflicts within staging.
+
+A rejected record must:
+
+- not create or update a production entity;
+- preserve the raw source payload or a durable reference to it;
+- preserve the validation rule and rejection reason;
+- remain linked to the `import_run`;
+- appear in the import validation summary.
+
+A rejected row does not automatically fail the complete import run. The complete run must fail only when a run-level invariant or configured acceptance threshold is violated.
+
+The detailed rejected-record taxonomy is defined by `ADR-009`.
+
+##### `unmatched`
+
+Use `unmatched` when a valid imported entity cannot be linked to a required target entity using the available evidence.
+
+For example, a valid Cardmarket source product may be stored as a market product while remaining unmatched to a canonical card.
+
+An unmatched record must:
+
+- remain preserved as a valid source-derived entity where applicable;
+- not create an unsupported mapping;
+- preserve the missing relationship and available evidence;
+- remain linked to the `import_run`;
+- remain visible in unresolved-record reports;
+- not contribute to derived values that require a confirmed mapping.
+
+The accepted `unmatched_duplicate_candidate` classification remains a controlled subtype of unmatched handling. Such products remain preserved, do not create catalogue mappings, and do not contribute to the canonical-card price.
+
+The detailed unmatched workflow and controlled statuses are defined by `ADR-009`.
+
+##### `ambiguous`
+
+Use `ambiguous` when more than one target mapping is plausible and the available evidence is insufficient to select one safely.
+
+An ambiguous record must:
+
+- not receive an automatically selected mapping;
+- preserve all candidate targets and available evidence;
+- not replace an existing confirmed mapping without explicit validation;
+- remain linked to the `import_run`;
+- remain visible in unresolved-record reports;
+- not contribute to dependent derived values.
+
+When a required parent relationship is ambiguous, dependent production records must not be created until the ambiguity is resolved.
+
+The detailed ambiguous-mapping workflow is defined by `ADR-009`.
+
+#### Transaction boundary
+
+The validated production merge must execute in a database transaction.
+
+The logical import sequence is:
+
+1. create an `import_run`;
+2. load source records into staging;
+3. validate staging records and run-level invariants;
+4. stop before production changes if pre-merge validation fails;
+5. merge parent production entities;
+6. merge dependent production entities;
+7. merge confirmed mappings;
+8. append price snapshots;
+9. record rejected, unmatched, and ambiguous outcomes;
+10. calculate the import validation summary;
+11. commit the production merge;
+12. mark the `import_run` as successful.
+
+If any production merge operation fails, the transaction must be rolled back.
+
+After rollback:
+
+- production catalogue data remains in its previous consistent state;
+- wishlist data remains unchanged;
+- no partial production merge is accepted;
+- the `import_run` is marked as failed;
+- available staging and validation evidence is retained for investigation.
+
+The implementation may use separate short transactions for creation of the import run, staging ingestion, and post-rollback failure recording, provided the production merge itself remains atomic.
+
+#### Import ownership boundary
+
+The import process may update only fields explicitly classified as source-derived and import-owned.
+
+The import process must not update:
+
+- wishlist selection state;
+- wanted quantity;
+- user notes;
+- future user-selected edition or variant preferences;
+- other user-generated metadata.
+
+Foreign-key relationships from wishlist data to canonical cards must remain valid when catalogue records are updated, marked missing, or retired.
+
+#### Required invariants
+
+The implementation must enforce the following invariants:
+
+- no production entity is merged from unvalidated staging data;
+- one source-scoped conflict target resolves to at most one production entity;
+- repeating the same validated import produces zero inserts and zero updates;
+- a missing record is not treated as deleted;
+- retirement does not physically delete imported entities;
+- catalogue imports do not modify wishlist data;
+- rejected, unmatched, and ambiguous records do not receive invented mappings;
+- market price snapshots are append-only;
+- a failed production merge leaves the previous production state unchanged;
+- every import outcome is traceable to an `import_run`.
+
+#### Alternatives considered
+
+##### Direct upsert into production tables
+
+Advantages:
+
+- fewer tables and processing stages;
+- simpler initial implementation;
+- direct use of database conflict handling.
+
+Disadvantages:
+
+- validation and production changes become tightly coupled;
+- partial failures are harder to investigate;
+- rejected and unresolved rows are harder to preserve consistently;
+- dry-run validation is limited;
+- production may be changed before full run-level validation is complete.
+
+##### Append-only source snapshots with derived current state
+
+Advantages:
+
+- complete source history;
+- strong auditability;
+- flexible reconstruction of past states.
+
+Disadvantages:
+
+- more complex current-state queries;
+- more storage and retention requirements;
+- increased implementation complexity for the MVP;
+- derived-state refresh and consistency rules would require additional infrastructure.
+
+##### Staging followed by validated transactional merge
+
+Advantages:
+
+- validation occurs before production changes;
+- dry-run and import summaries are practical;
+- unresolved records remain explicit;
+- production updates can be atomic;
+- repeated imports can be tested deterministically;
+- wishlist data can remain outside the merge boundary.
+
+Disadvantages:
+
+- requires staging and import-control tables;
+- requires explicit merge logic;
+- requires clear ownership rules for production fields;
+- requires cleanup or retention rules for staging data.
+
+#### Consequences
+
+Positive:
+
+- repeated catalogue imports can be idempotent;
+- source-scoped uniqueness remains enforceable;
+- failed imports cannot leave a partially merged catalogue;
+- rejected and unresolved records remain traceable;
+- wishlist data remains independent from source updates;
+- validation can occur before production changes;
+- append-only price history remains compatible with current-state catalogue tables.
+
+Negative:
+
+- the schema and import pipeline contain additional tables and states;
+- merge logic must distinguish import-owned and user-owned fields;
+- authoritative import scope must be declared before missing records can be detected;
+- retirement requires a separate evidence-based policy;
+- staging retention and cleanup rules must be documented.
+
+#### Validation
+
+Validate the decision with the Primal Clash vertical slice.
+
+The validation must include:
+
+1. Import the complete validated fixture into an empty database.
+2. Confirm the expected production and unresolved-record counts.
+3. Repeat the identical import.
+4. Confirm that the second import produces:
+
+   * zero inserted catalogue entities;
+   * zero updated catalogue entities;
+   * no uncontrolled duplicates;
+   * unchanged wishlist records.
+5. Change one import-owned field in staging and confirm that exactly one expected production record is updated.
+6. Remove one record from a declared complete authoritative scope and confirm that it is reported as `missing` without deletion or automatic retirement.
+7. Import a rejected record and confirm that it does not reach production.
+8. Import unmatched and ambiguous mapping examples and confirm that no unsupported mapping or canonical price contribution is created.
+9. Force a merge failure and confirm that all production changes are rolled back.
+10. Confirm that price snapshots remain append-only.
+11. Confirm that existing wishlist quantity and notes remain unchanged through insert, update, missing, retirement, and rollback tests.
+
+#### Follow-up
+
+- Define the rejected, unmatched, and ambiguous record taxonomy in `ADR-009`.
+- Define staging, import-run, validation-evidence, and merge-result tables.
+- Define import-owned fields for every production table.
+- Define how an import declares its authoritative source scope.
+- Define staging retention and cleanup rules.
+- Define the physical inactive-state fields used for retirement.
+- Add database constraints for the accepted source-scoped conflict targets.
+- Write repeat-import, rollback, unresolved-record, and wishlist-preservation tests.
+- Revisit automatic retirement only after sequential source snapshots provide sufficient evidence.
+
+---
+
 ## ADR-011 — Display the minimum 30-day average as the canonical card price
 
 - Status: Accepted
@@ -599,7 +960,6 @@ For the Primal Clash vertical slice:
 
 The following decisions are expected before or during `M0 — Discovery` and `M3 — Data model`:
 
-- `ADR-008 — Define repeated import and upsert behaviour`
 - `ADR-009 — Define rejected and unmatched record handling`
 - `ADR-010 — Define backup scope, retention, and restore validation`
 
