@@ -811,7 +811,7 @@ The validation must include:
 
 ## ADR-009 — Preserve rejected and unresolved import records through controlled review states
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-28
 - Owners: Project owner
 - Supersedes: N/A
