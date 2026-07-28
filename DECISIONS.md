@@ -1307,6 +1307,553 @@ The validation must confirm:
 
 ---
 
+## ADR-010 — Define backup scope, retention, and restore validation
+
+- Status: Proposed
+- Date: 2026-07-28
+- Owners: Project owner
+- Supersedes: N/A
+
+#### Context
+
+The MVP will store several types of persistent data:
+
+- PostgreSQL catalogue, import-control, price, and wishlist data;
+- locally stored card images;
+- Docker Compose and application configuration;
+- operational documentation and recovery procedures;
+- secrets and credentials that must remain outside the repository.
+
+A backup stored only on the Raspberry Pi or on the same SSD does not protect
+against device loss, SSD failure, filesystem corruption, accidental deletion,
+or destructive maintenance.
+
+Database backup creation alone is not sufficient. The application must also be
+recoverable with its image files and required configuration.
+
+A backup process must therefore define:
+
+- what is backed up;
+- where backups are stored;
+- how often they are created;
+- how long they are retained;
+- how secrets are handled;
+- how backup integrity is checked;
+- how restoration is tested;
+- what evidence is retained.
+
+The MVP should use a simple, reproducible process without introducing an
+unnecessary backup platform or paid service.
+
+#### Decision
+
+Use separate backup mechanisms for PostgreSQL and file-based data.
+
+Use:
+
+- `pg_dump` for PostgreSQL logical backups;
+- file-level archive or copy for card images and required configuration;
+- at least one backup copy stored outside the Raspberry Pi and its primary SSD;
+- documented retention rules;
+- documented restore procedures;
+- periodic restore validation to a clean test location.
+
+A backup is not considered validated merely because the backup command
+completed successfully.
+
+The backup process is considered validated only after the protected data has
+been restored and the restored result has passed the required integrity checks.
+
+#### Backup scope
+
+The backup scope must include the following categories.
+
+##### PostgreSQL data
+
+Back up the PostgreSQL database containing:
+
+- catalogue data;
+- canonical cards;
+- editions and variants;
+- Cardmarket products and mappings;
+- market price snapshots;
+- import runs and validation evidence;
+- rejected and unresolved record evidence;
+- wishlist items;
+- user-entered quantity and notes;
+- schema objects required by the application.
+
+Use a logical PostgreSQL backup produced by `pg_dump`.
+
+The backup must include enough database structure and data to restore the
+application database into a clean PostgreSQL instance.
+
+##### Card images
+
+Back up all locally managed card images required by the application.
+
+The backup must preserve:
+
+- relative file paths;
+- file names;
+- directory structure;
+- file contents;
+- enough metadata to reconnect database image references after restoration.
+
+Temporary download files, caches, and reproducible intermediate files do not
+need to be included unless they are required for recovery.
+
+##### Configuration
+
+Back up the configuration required to recreate the deployment, including where
+applicable:
+
+- `compose.yaml` or `docker-compose.yml`;
+- Docker environment-file templates without secret values;
+- service configuration files;
+- storage path definitions;
+- image-serving configuration;
+- backup and restore scripts;
+- documented version information;
+- operational notes required for recovery.
+
+Files already version-controlled in GitHub do not need to be duplicated for
+source-history purposes, but the recovery procedure must identify the required
+repository revision or release tag.
+
+##### Secrets
+
+Secrets must not be committed to the repository or stored in plaintext backup
+evidence.
+
+Secrets may be backed up only through an explicitly protected mechanism, such
+as:
+
+- an encrypted password manager;
+- an encrypted archive;
+- another documented secure secret-storage method.
+
+The restore guide must identify which secrets must be recreated or retrieved.
+
+The backup process must not copy plaintext secret files to an unprotected
+off-device location.
+
+##### Excluded data
+
+The following may be excluded when they are reproducible and not required for
+recovery:
+
+- container images available from their registries;
+- disposable container layers;
+- caches;
+- temporary import files;
+- generated reports that can be reproduced from retained source and database
+  data;
+- development-only files not used by the deployed MVP.
+
+Exclusions must be documented rather than assumed.
+
+#### Backup locations
+
+Maintain at least two storage locations:
+
+1. the primary live storage on the Raspberry Pi SSD;
+2. at least one backup copy outside the Raspberry Pi and outside the primary
+   SSD.
+
+The external copy may use:
+
+- another computer;
+- an external drive that is not permanently attached;
+- a network storage location;
+- an encrypted remote storage service;
+- another separately approved location.
+
+A backup stored on another directory or partition of the same SSD does not
+satisfy the off-device requirement.
+
+The selected external location must be documented during infrastructure
+implementation.
+
+#### Backup schedule
+
+Use a simple MVP schedule.
+
+Recommended baseline:
+
+- PostgreSQL logical backup: daily;
+- images and configuration backup: daily when changes are expected, otherwise
+  at least weekly;
+- immediate manual backup before destructive maintenance, database migration,
+  restore testing, or major import changes.
+
+The exact execution time may be selected during deployment.
+
+A failed scheduled backup must be visible through logs or another documented
+check. Silent failure is not acceptable.
+
+#### Retention
+
+Use a rolling retention policy suitable for a single-user MVP.
+
+Recommended baseline:
+
+- retain the most recent `7` daily backups;
+- retain the most recent `4` weekly backups;
+- retain one manual pre-change backup for each significant migration or recovery
+  test until the related change is validated.
+
+Retention applies to complete recovery sets, not only to database files.
+
+A recovery set should make it possible to identify the matching:
+
+- database backup;
+- image backup;
+- configuration revision;
+- backup timestamp;
+- application or repository version.
+
+Old backups may be deleted only after:
+
+- the required newer backups exist;
+- backup creation completed successfully;
+- the retention policy remains satisfied.
+
+The implementation may simplify the physical storage layout, but it must not
+silently reduce the accepted recovery coverage.
+
+#### Backup naming and metadata
+
+Backup files must use deterministic names containing at least:
+
+- project identifier;
+- backup type;
+- UTC or clearly documented local timestamp;
+- database or component name where applicable.
+
+Example naming pattern:
+
+```text
+pokemon-card-wishlist_postgresql_2026-07-28T010000Z.dump
+pokemon-card-wishlist_files_2026-07-28T010000Z.tar.gz
+pokemon-card-wishlist_manifest_2026-07-28T010000Z.json
+```
+
+Each recovery set should preserve a manifest containing where practical:
+
+- creation timestamp;
+- host identifier;
+- PostgreSQL version;
+- backup command or script version;
+- repository commit or release identifier;
+- included components;
+- excluded components;
+- backup file sizes;
+- checksum values;
+- success or failure status.
+
+The manifest must not contain secret values.
+
+#### Integrity checks
+
+Every created backup must receive basic validation.
+
+Database backup validation must include where practical:
+
+- successful `pg_dump` exit status;
+- non-zero backup file size;
+- expected backup format;
+- recorded checksum;
+- ability to inspect or restore the dump.
+
+File backup validation must include:
+
+- successful archive or copy operation;
+- expected directories present;
+- non-zero file count where images are expected;
+- recorded checksum or archive integrity check;
+- no accidental inclusion of plaintext secrets.
+
+Checksums help detect file corruption but do not replace restore testing.
+
+#### Restore procedure
+
+The restore procedure must support recovery into a clean environment.
+
+The documented sequence must include:
+
+1. identify the required recovery set;
+2. obtain the matching repository revision or release;
+3. prepare a clean PostgreSQL instance;
+4. restore the database;
+5. restore card images to the documented path;
+6. restore or recreate configuration;
+7. retrieve or recreate required secrets securely;
+8. start the services;
+9. run database and application validation;
+10. record the restore result.
+
+Restore testing must not overwrite the only working production environment
+unless an explicit recovery exercise has been planned and a rollback path is
+available.
+
+Prefer restore validation in an isolated database, temporary Docker Compose
+project, or other clean test environment.
+
+#### Restore validation
+
+A successful restore test must verify at least:
+
+- PostgreSQL restore completes without unresolved errors;
+- expected schema objects exist;
+- expected catalogue row counts are present;
+- wishlist items are present;
+- wanted quantity and notes are preserved;
+- import-run and unresolved-record evidence is present;
+- image files are present;
+- database image references resolve to restored files;
+- the application can connect to the restored database;
+- catalogue records can be read;
+- the Wishlist view or equivalent validation query returns expected data;
+- no secrets were exposed through logs, repository files, or backup evidence.
+
+Where practical, the restore test should also verify:
+
+- the canonical-card minimum `avg30` query;
+- source-scoped uniqueness constraints;
+- foreign-key integrity;
+- backup checksum consistency;
+- service restart after restoration.
+
+A restore test is unsuccessful if data is present but the documented application
+workflow cannot use it.
+
+#### Restore-test frequency
+
+Perform restore validation:
+
+- before accepting the infrastructure milestone;
+- after material changes to database version, storage layout, backup scripts, or
+  restore scripts;
+- before the MVP release;
+- periodically during operation, with a recommended minimum of once every three
+  months.
+
+A restore test may be performed more frequently during implementation.
+
+The project must not claim that backup and restore are validated until at least
+one complete restore test has passed.
+
+#### Recovery objectives
+
+The MVP does not require formal enterprise service-level guarantees.
+
+Use the following practical targets:
+
+- recovery point objective: loss of no more than one day of database changes
+  under the normal daily backup schedule;
+- recovery time objective: restore the MVP within one planned maintenance
+  session using the documented procedure.
+
+These are recovery targets, not validated guarantees, until measured through a
+restore exercise.
+
+Any measured restore duration and observed data-loss window should be recorded
+in the restore evidence.
+
+#### Backup and restore evidence
+
+Each validation exercise must record:
+
+- date and time;
+- backup set used;
+- source environment;
+- target restore environment;
+- commands or scripts executed;
+- backup file sizes;
+- checksum results;
+- database restore result;
+- file restore result;
+- validation queries or checks;
+- observed issues;
+- recovery duration;
+- final success or failure status.
+
+Evidence must not include:
+
+- passwords;
+- tokens;
+- private keys;
+- plaintext environment files containing secrets;
+- sensitive network credentials.
+
+Operational logs may be retained if they are reviewed for secret exposure.
+
+#### Failure handling
+
+If a backup fails:
+
+- do not delete the last known valid backup;
+- record the failure;
+- preserve relevant logs without secrets;
+- investigate the failure;
+- rerun the backup after correction;
+- verify that retention still contains a usable recovery set.
+
+If restore validation fails:
+
+- mark the recovery set or procedure as unvalidated;
+- record the failure reason;
+- preserve the failed-test evidence;
+- correct the backup or restore procedure;
+- repeat the restore test from a clean target;
+- do not claim backup readiness until the repeated test passes.
+
+A backup process with repeated unreviewed failures must be treated as an active
+operational risk.
+
+#### Security requirements
+
+The backup process must:
+
+- use least-privilege access where practical;
+- protect external backup storage from unauthorised access;
+- avoid public exposure of database dumps;
+- avoid plaintext secret storage;
+- protect backup encryption keys separately from encrypted backup files;
+- restrict file permissions;
+- avoid including unnecessary personal or system data;
+- document who or what can access the backups.
+
+Encrypted backups are required when the selected external storage is not fully
+trusted or is accessible outside the private environment.
+
+Encryption must not create a single unrecoverable dependency. The decryption
+method and key-recovery process must be documented securely.
+
+#### Alternatives considered
+
+##### Database backup only
+
+Advantages:
+
+- simplest process;
+- small backup size;
+- easy automation with `pg_dump`.
+
+Disadvantages:
+
+- does not protect locally stored images;
+- does not preserve required deployment configuration;
+- cannot recover the complete application state.
+
+##### Full disk image only
+
+Advantages:
+
+- captures the complete device state;
+- potentially simple full-device replacement.
+
+Disadvantages:
+
+- large backup size;
+- slower creation and restoration;
+- less portable across hardware and software versions;
+- difficult to validate individual database contents;
+- may capture unnecessary or sensitive system data.
+
+##### Filesystem copy of the live PostgreSQL data directory
+
+Advantages:
+
+- potentially fast;
+- preserves physical database files.
+
+Disadvantages:
+
+- unsafe without correct PostgreSQL consistency controls;
+- tied to PostgreSQL version and platform;
+- less portable than logical backups;
+- easier to misuse during a live copy.
+
+##### Logical database backup plus file-level backup
+
+Advantages:
+
+- portable PostgreSQL recovery;
+- explicit coverage of images and configuration;
+- simple enough for the MVP;
+- easy to validate in a clean environment;
+- compatible with Docker-based deployment.
+
+Disadvantages:
+
+- requires coordination between multiple backup components;
+- requires manifests or timestamps to identify matching recovery sets;
+- restore procedure is longer than a single-file device image;
+- secret recovery remains a separate responsibility.
+
+#### Consequences
+
+Positive:
+
+- the complete MVP state can be recovered;
+- wishlist and imported catalogue data receive explicit protection;
+- image storage is included in recovery planning;
+- same-device backups are not mistaken for disaster recovery;
+- backup success and restore success remain separate validation states;
+- the process remains compatible with the proposed Docker and PostgreSQL stack;
+- recovery evidence supports milestone and portfolio validation.
+
+Negative:
+
+- external backup storage is required;
+- multiple backup components must be coordinated;
+- retention consumes additional storage;
+- restore exercises require time and a clean test environment;
+- secret recovery requires a separate secure process;
+- backup monitoring and failure review add operational work.
+
+#### Validation
+
+Validate this decision during `M2 — Infrastructure`.
+
+The validation must include:
+
+1. Create a PostgreSQL backup with `pg_dump`.
+2. Create a file backup containing the required images and configuration.
+3. Copy or write the recovery set to a location outside the Raspberry Pi SSD.
+4. Generate or record checksums.
+5. Prepare a clean restore environment.
+6. Restore PostgreSQL.
+7. Restore images and configuration.
+8. Recreate or retrieve secrets through the documented secure process.
+9. Start the restored services.
+10. Confirm expected catalogue and wishlist data.
+11. Confirm wishlist quantity and notes are preserved.
+12. Confirm image references resolve.
+13. Confirm the application can use the restored database.
+14. Confirm PostgreSQL remains unexposed to the public internet.
+15. Record restore duration and observed problems.
+16. Confirm retention cleanup does not delete the latest valid recovery set.
+17. Confirm backup evidence contains no secrets.
+
+#### Follow-up
+
+- Select and document the external backup location.
+- Define the exact backup schedule on the Raspberry Pi.
+- Define the physical directory layout for backup files.
+- Implement reusable backup and restore scripts.
+- Add backup manifests and checksums.
+- Define log review and failure-notification behaviour.
+- Document the secret recovery method.
+- Perform and record the first clean restore test.
+- Update `PROJECT.md`, `ROADMAP.md`, `STACK.md`, and `CHANGELOG.md` after
+  implementation and validation.
+- Accept or revise this ADR after the first complete restore test.
+
+---
+
 ## ADR-011 — Display the minimum 30-day average as the canonical card price
 
 - Status: Accepted
@@ -1456,8 +2003,4 @@ For the Primal Clash vertical slice:
 
 ## Planned ADRs
 
-The following decisions are expected before or during `M0 — Discovery` and `M3 — Data model`:
-
-- `ADR-010 — Define backup scope, retention, and restore validation`
-
-These ADRs must not be finalised without evidence from real source files.
+No additional ADRs are currently scheduled.
