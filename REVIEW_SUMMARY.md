@@ -94,17 +94,17 @@ for later milestones.
 
 The following remain intentionally unresolved:
 
-- repeated import and upsert behaviour;
-- the general rejected, unmatched, and ambiguous mapping workflow beyond the
-  accepted Primal Clash duplicate-candidate rule;
-- final database schema and controlled-value implementation;
+- final physical database schema and controlled-value implementation;
+- exact staging, evidence, review-history, and merge-result table structures;
 - handling of future Cardmarket products whose differences exceed
   `idProduct` and `dateAdded`, or which lack a directly mapped sibling;
-- final acceptance of NocoDB, PostgreSQL, Tailscale, and local image storage.
+- final acceptance of NocoDB, PostgreSQL, Tailscale, and local image storage;
+- the concrete external backup location, schedule, scripts, retention cleanup,
+  and restore-test evidence required to validate `ADR-010`.
 
-These decisions are intentionally deferred to their implementation-dependent
-milestones. `ADR-008` and `ADR-009` must be resolved before the physical data
-model and repeatable import workflow are finalised, while `ADR-010` must be
-resolved during infrastructure and recovery planning. The Primal Clash direct-ID
-mapping and its six `unmatched_duplicate_candidate` records are no longer
-unresolved.
+`ADR-008` and `ADR-009` are accepted and now define the repeated-import and
+unresolved-record boundaries for `M3 — Data model`. `ADR-010` is proposed and
+must remain unvalidated until the backup and restore process is implemented and
+a complete clean restore test passes during `M2 — Infrastructure`. The Primal
+Clash direct-ID mapping and its six `unmatched_duplicate_candidate` records are
+no longer unresolved.

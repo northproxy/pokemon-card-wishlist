@@ -101,27 +101,27 @@ Filter items with `Area = Data`, `Area = Database`, or `Area = Import`.
 
 Completed or accepted:
 
-* Inventoried the available Cardmarket and Pokémon TCG Data sources.
-* Documented representative source fields.
-* Defined the canonical-card boundary.
-* Accepted source-scoped import keys.
-* Separated canonical cards, editions, language and finish variants, and market products.
-* Selected Primal Clash as the first vertical slice.
-* Defined the canonical-card `From` price as the minimum supported non-null `avg30`.
-* Built the reproducible Primal Clash mapping fixture.
-* Replaced inferred product ordering with direct Cardmarket `idProduct` evidence.
-* Validated deterministic canonical-card image metadata.
-* Classified Online Code Card products as excluded.
-* Preserved six unlisted duplicate-like products as `unmatched_duplicate_candidate`.
-* Completed the M0 discovery validation summary and exit review.
+- Inventoried the available Cardmarket and Pokémon TCG Data sources.
+- Documented representative source fields.
+- Defined the canonical-card boundary.
+- Accepted source-scoped import keys.
+- Separated canonical cards, editions, language and finish variants, and market products.
+- Selected Primal Clash as the first vertical slice.
+- Defined the canonical-card `From` price as the minimum supported non-null `avg30`.
+- Built the reproducible Primal Clash mapping fixture.
+- Replaced inferred product ordering with direct Cardmarket `idProduct` evidence.
+- Validated deterministic canonical-card image metadata.
+- Classified Online Code Card products as excluded.
+- Preserved six unlisted duplicate-like products as `unmatched_duplicate_candidate`.
+- Completed the M0 discovery validation summary and exit review.
 
-Deferred decisions:
+Decision status after M0:
 
-* Define repeated import and upsert behaviour in `ADR-008` during preparation for the physical data model.
-* Define the general rejected, unmatched, and ambiguous record workflow in `ADR-009`.
-* Define backup scope, retention, and restore validation in `ADR-010`.
+- `ADR-008` is accepted and defines staging plus validated transactional merges for repeated imports.
+- `ADR-009` is accepted and defines controlled rejected and unresolved-record review states.
+- `ADR-010` is proposed and defines the backup, retention, and restore-validation strategy awaiting M2 implementation evidence.
 
-These decisions remain prerequisites for their respective implementation milestones but do not invalidate the completed M0 vertical-slice discovery result.
+`ADR-008` and `ADR-009` are prerequisites for the physical data model and import workflow. `ADR-010` remains a prerequisite for completing and validating the infrastructure milestone. None of these decisions invalidates the completed M0 vertical-slice discovery result.
 
 ### M1 — Repository foundation
 
@@ -129,20 +129,20 @@ These decisions remain prerequisites for their respective implementation milesto
 
 Completed outcomes:
 
-* Created the repository structure.
-* Added and cross-linked the core project documentation.
-* Added issue templates for tasks, bugs, research, and decisions.
-* Added a pull request template.
-* Added security notes in `SECURITY.md`.
-* Added contribution guidance in `CONTRIBUTING.md`.
-* Added `CHANGELOG.md` and `ROADMAP.md`.
-* Added and validated Markdown checks through GitHub Actions.
-* Created and published the GitHub repository.
-* Configured the GitHub Project fields and views.
-* Created and classified the initial M1 issue set.
-* Validated the `Current milestone` view with real issues.
-* Verified the public README links, workflow badge, and issue-template contact links.
-* Completed the M1 exit review against `PROJECT.md`.
+- Created the repository structure.
+- Added and cross-linked the core project documentation.
+- Added issue templates for tasks, bugs, research, and decisions.
+- Added a pull request template.
+- Added security notes in `SECURITY.md`.
+- Added contribution guidance in `CONTRIBUTING.md`.
+- Added `CHANGELOG.md` and `ROADMAP.md`.
+- Added and validated Markdown checks through GitHub Actions.
+- Created and published the GitHub repository.
+- Configured the GitHub Project fields and views.
+- Created and classified the initial M1 issue set.
+- Validated the `Current milestone` view with real issues.
+- Verified the public README links, workflow badge, and issue-template contact links.
+- Completed the M1 exit review against `PROJECT.md`.
 
 ### M2 — Infrastructure
 
