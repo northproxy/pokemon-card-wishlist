@@ -450,7 +450,7 @@ Negative:
 
 ## ADR-008 — Use staging and validated transactional merges for repeated imports
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 - Owners: Project owner
 - Supersedes: N/A
@@ -783,10 +783,10 @@ The validation must include:
 3. Repeat the identical import.
 4. Confirm that the second import produces:
 
-   * zero inserted catalogue entities;
-   * zero updated catalogue entities;
-   * no uncontrolled duplicates;
-   * unchanged wishlist records.
+   - zero inserted catalogue entities;
+   - zero updated catalogue entities;
+   - no uncontrolled duplicates;
+   - unchanged wishlist records.
 5. Change one import-owned field in staging and confirm that exactly one expected production record is updated.
 6. Remove one record from a declared complete authoritative scope and confirm that it is reported as `missing` without deletion or automatic retirement.
 7. Import a rejected record and confirm that it does not reach production.
@@ -806,6 +806,504 @@ The validation must include:
 - Add database constraints for the accepted source-scoped conflict targets.
 - Write repeat-import, rollback, unresolved-record, and wishlist-preservation tests.
 - Revisit automatic retirement only after sequential source snapshots provide sufficient evidence.
+
+---
+
+## ADR-009 — Preserve rejected and unresolved import records through controlled review states
+
+- Status: Proposed
+- Date: 2026-07-28
+- Owners: Project owner
+- Supersedes: N/A
+
+#### Context
+
+Imported source records and cross-source mappings do not always contain enough valid evidence to enter the production catalogue or create a confirmed relationship.
+
+The import workflow must distinguish between:
+
+- an invalid source record;
+- a valid source entity with no target match;
+- a source entity with multiple plausible target matches;
+- a possible relationship that requires review;
+- a confirmed relationship;
+- a valid source record intentionally excluded from MVP catalogue scope;
+- the accepted duplicate-like unmatched Cardmarket product case.
+
+These conditions must not be collapsed into one generic error state.
+
+Unknown or ambiguous source data must remain traceable and reviewable. The import process must not invent mappings, silently discard source records, or allow unresolved records to influence canonical-card pricing.
+
+`ADR-008` defines how rejected, unmatched, and ambiguous records interact with staging and transactional production merges. This ADR defines their controlled statuses, required evidence, review lifecycle, and reporting behaviour.
+
+#### Decision
+
+Use controlled source-record and mapping statuses with explicit evidence and review fields.
+
+The controlled statuses are:
+
+- `rejected`;
+- `unmatched`;
+- `ambiguous`;
+- `candidate`;
+- `confirmed`;
+- `excluded`;
+- `unmatched_duplicate_candidate`.
+
+The statuses describe the latest accepted classification of a source record or mapping relationship. Every classification remains traceable to the `import_run` and evidence that produced it.
+
+No unresolved status may be promoted to `confirmed` without deterministic evidence or an explicit reviewed decision.
+
+#### Status definitions
+
+##### `rejected`
+
+Use `rejected` when the source record itself is invalid for the required import contract.
+
+Examples include:
+
+- missing required source-scoped identifier;
+- invalid required data type;
+- invalid controlled value;
+- malformed required relationship;
+- duplicate source keys within one authoritative staging scope;
+- internally contradictory source fields;
+- a record that cannot be parsed without inventing required values.
+
+A rejected record:
+
+- does not create or update its target production entity;
+- does not create a mapping;
+- does not participate in canonical-card price calculation;
+- preserves the raw payload or a durable raw-source reference;
+- preserves one or more structured rejection reasons;
+- remains linked to the import run;
+- may be reprocessed after the source data or validation rule changes.
+
+`rejected` must not be used merely because a valid source entity has no confirmed cross-source mapping.
+
+##### `unmatched`
+
+Use `unmatched` when the source entity is valid, but no plausible target entity can be identified using the available evidence.
+
+An unmatched record:
+
+- may create or update its own independent production entity where applicable;
+- does not create a cross-source mapping;
+- does not create an edition or variant through inference;
+- does not participate in derived values requiring a confirmed mapping;
+- remains visible in unresolved-record reports;
+- may be reevaluated during a later import or manual review.
+
+For example, a valid Cardmarket product may be preserved in `market_products` while remaining unmatched to a canonical card.
+
+##### `ambiguous`
+
+Use `ambiguous` when two or more target entities are plausible and the available evidence cannot distinguish them safely.
+
+An ambiguous record:
+
+- preserves all plausible candidate targets;
+- preserves the evidence supporting each candidate;
+- does not create a confirmed mapping;
+- does not replace an existing confirmed mapping automatically;
+- does not participate in derived values requiring a confirmed mapping;
+- requires additional evidence or explicit review before resolution.
+
+The import process must not choose the first, cheapest, closest-name, or otherwise convenient candidate automatically.
+
+##### `candidate`
+
+Use `candidate` when exactly one plausible target relationship has been identified, but the available evidence does not meet the confirmation threshold.
+
+A candidate record:
+
+- preserves the proposed target;
+- preserves the mapping method and available evidence;
+- does not create an active confirmed production mapping;
+- does not participate in canonical-card price calculation;
+- remains reviewable;
+- may become `confirmed`, `unmatched`, `ambiguous`, `excluded`, or remain `candidate` after further evidence is collected.
+
+`candidate` is not a weaker synonym for `confirmed`.
+
+##### `confirmed`
+
+Use `confirmed` when the mapping is supported by deterministic source evidence or an explicit reviewed decision.
+
+Examples of deterministic evidence include:
+
+- a direct source product identifier collected from the corresponding marketplace product page;
+- a source-provided explicit relationship identifier;
+- another documented evidence rule accepted by an ADR or validated import rule.
+
+A confirmed mapping:
+
+- may create or update the production mapping;
+- may create the supported edition and variant relationships;
+- may participate in canonical-card price calculation when all other pricing requirements are satisfied;
+- preserves the mapping method and evidence reference;
+- remains traceable to the import run or manual review that confirmed it.
+
+A previously confirmed mapping must not be replaced or removed automatically by weaker new evidence.
+
+##### `excluded`
+
+Use `excluded` when a valid source record is intentionally outside the approved MVP catalogue scope.
+
+Examples include:
+
+- Online Code Card products;
+- sealed products;
+- unsupported product categories explicitly excluded by project scope.
+
+An excluded record:
+
+- remains preserved as source evidence;
+- records a controlled exclusion reason;
+- does not create a canonical catalogue entity, edition, variant, or confirmed catalogue mapping;
+- does not participate in canonical-card price calculation;
+- appears separately from rejected and unresolved records in import reports;
+- is not considered a data-quality failure when the exclusion rule is expected and validated.
+
+`excluded` must not be used to hide a record that is difficult to map.
+
+##### `unmatched_duplicate_candidate`
+
+Use `unmatched_duplicate_candidate` only when the conditions accepted in `ADR-012` are satisfied.
+
+The record must:
+
+- be unreferenced by a successfully collected Cardmarket listing URL;
+- share `idMetacard` with a directly mapped product;
+- have the same normalized product name;
+- have the same `idExpansion`, `idCategory`, and category name;
+- differ only in `idProduct` and `dateAdded`.
+
+An `unmatched_duplicate_candidate`:
+
+- remains preserved as a valid source product;
+- does not create a canonical-card mapping;
+- does not create an edition or variant;
+- does not participate in canonical-card price calculation;
+- remains visible in validation and review reports;
+- may be reclassified if richer source evidence becomes available.
+
+This status does not assert that the source record is a confirmed duplicate.
+
+#### Status ownership
+
+Source-record validity and mapping resolution are separate concerns.
+
+Where practical, the physical model should preserve them separately, for example:
+
+- source-record processing status;
+- mapping status;
+- review status.
+
+A valid market product may therefore be successfully merged as a production entity while its mapping status remains `unmatched`, `candidate`, `ambiguous`, or `unmatched_duplicate_candidate`.
+
+The final physical table design is defined during `M3 — Data model`, but it must not force unrelated concepts into one overloaded status field.
+
+#### Required evidence fields
+
+Every rejected or mapping-review record must preserve, directly or through related evidence tables:
+
+- `import_run_id`;
+- `source_system`;
+- source entity type;
+- source-scoped identifier, when available;
+- raw source payload or durable raw-source reference;
+- controlled status;
+- controlled reason code;
+- human-readable reason detail;
+- mapping method, where applicable;
+- proposed or confirmed target identifier, where applicable;
+- candidate target identifiers, where applicable;
+- evidence type;
+- evidence reference;
+- evidence strength or confidence category;
+- first observed timestamp;
+- latest observed timestamp;
+- review state;
+- reviewer or review source, where applicable;
+- review timestamp, where applicable;
+- resolution note, where applicable;
+- superseded status reference, where applicable.
+
+Free-text notes may supplement but must not replace controlled status and reason values.
+
+#### Evidence levels
+
+Use controlled evidence levels:
+
+- `direct`;
+- `derived`;
+- `manual`;
+- `insufficient`.
+
+##### `direct`
+
+Evidence explicitly identifies the relationship, such as a collected source product ID from the corresponding product page.
+
+Direct evidence may support automatic `confirmed` status when the validation rule is documented and passes.
+
+##### `derived`
+
+Evidence is produced by a deterministic rule from multiple source fields but does not contain an explicit relationship identifier.
+
+Derived evidence may support `candidate` or, only when separately accepted and validated, `confirmed`.
+
+##### `manual`
+
+A reviewer explicitly confirms or resolves the record using documented evidence.
+
+Manual confirmation must preserve the reviewer, timestamp, evidence, and resolution note.
+
+##### `insufficient`
+
+The available evidence cannot establish a safe relationship.
+
+Insufficient evidence results in `unmatched`, `ambiguous`, or continued `candidate` status.
+
+#### Review lifecycle
+
+The lifecycle must preserve status history rather than overwrite all earlier evidence.
+
+Allowed review transitions include:
+
+```text
+unmatched → candidate
+unmatched → ambiguous
+unmatched → confirmed
+unmatched → excluded
+
+candidate → confirmed
+candidate → ambiguous
+candidate → unmatched
+candidate → excluded
+
+ambiguous → candidate
+ambiguous → confirmed
+ambiguous → unmatched
+ambiguous → excluded
+
+unmatched_duplicate_candidate → candidate
+unmatched_duplicate_candidate → confirmed
+unmatched_duplicate_candidate → unmatched
+unmatched_duplicate_candidate → excluded
+
+rejected → revalidated
+revalidated → rejected
+revalidated → unmatched
+revalidated → candidate
+revalidated → ambiguous
+revalidated → confirmed
+revalidated → excluded
+```
+
+`revalidated` may be represented as an event rather than a persistent final status.
+
+A transition to `confirmed` requires:
+
+- sufficient evidence;
+- a recorded confirmation method;
+- a target identifier;
+- validation that the target is compatible with existing uniqueness and mapping constraints;
+- no unresolved conflict with an existing confirmed mapping.
+
+A transition must create a new status-history or resolution record rather than destroying the previous classification evidence.
+
+#### Reprocessing behaviour
+
+Every new import run may reevaluate unresolved records using newly available source data.
+
+Reprocessing must:
+
+- use source-scoped identifiers to reconnect the record with earlier evidence;
+- preserve the previous status and evidence;
+- create a new observation or classification result;
+- avoid duplicating identical unresolved observations unnecessarily;
+- never demote or replace a confirmed mapping solely because weaker evidence is observed;
+- report status transitions separately from newly observed unresolved records.
+
+Manual resolutions should remain effective across repeated imports unless new direct evidence creates a documented conflict.
+
+Such a conflict must be reported for review rather than silently replacing the manual resolution.
+
+#### Production merge behaviour
+
+The status controls production effects as follows:
+
+| Status                          | Preserve source entity |      Create target entity |    Create mapping | Price contribution |
+| ------------------------------- | ---------------------: | ------------------------: | ----------------: | -----------------: |
+| `rejected`                      |       Yes, as evidence |                        No |                No |                 No |
+| `unmatched`                     |                    Yes | Where independently valid |                No |                 No |
+| `ambiguous`                     |                    Yes | Where independently valid |                No |                 No |
+| `candidate`                     |                    Yes | Where independently valid | No active mapping |                 No |
+| `confirmed`                     |                    Yes |       Yes, where required |               Yes | Yes, when eligible |
+| `excluded`                      |       Yes, as evidence |       No catalogue entity |                No |                 No |
+| `unmatched_duplicate_candidate` |                    Yes |       Market product only |                No |                 No |
+
+Only `confirmed` mappings may participate in the canonical-card minimum `avg30` calculation defined by `ADR-011`.
+
+#### Import-run failure rules
+
+A row-level `rejected`, `unmatched`, `candidate`, `ambiguous`, `excluded`, or `unmatched_duplicate_candidate` result does not automatically fail the complete import run.
+
+The import run must fail before production merge when a run-level invariant is violated, including:
+
+- duplicate source-scoped identifiers that make deterministic processing impossible;
+- staging corruption;
+- unsupported schema or file version;
+- invalid declared authoritative scope;
+- validation totals inconsistent with the declared source input;
+- a confirmed mapping conflict that violates uniqueness constraints;
+- another configured critical validation rule.
+
+Non-critical unresolved records may be committed as evidence while valid production entities are merged, provided the import summary reports them accurately.
+
+Acceptance thresholds must be explicit and must not be introduced silently in implementation code.
+
+#### Import reporting
+
+Every import summary must report at least:
+
+- total source records;
+- valid source records;
+- rejected records;
+- excluded records;
+- confirmed mappings;
+- candidate mappings;
+- unmatched mappings;
+- ambiguous mappings;
+- `unmatched_duplicate_candidate` records;
+- newly observed unresolved records;
+- previously known unresolved records observed again;
+- resolved records;
+- status transitions;
+- unresolved records that could affect catalogue completeness;
+- records excluded from canonical-card price calculation;
+- run-level validation failures.
+
+The report must distinguish expected exclusions from data-quality failures.
+
+Counts must reconcile with the declared import scope or the run must report why reconciliation is not applicable.
+
+#### Alternatives considered
+
+##### One generic unresolved status
+
+Advantages:
+
+- simpler schema;
+- fewer controlled values.
+
+Disadvantages:
+
+- loses the difference between no target, multiple targets, and one unconfirmed target;
+- makes review prioritisation difficult;
+- obscures production and pricing effects;
+- cannot represent the accepted duplicate-candidate rule accurately.
+
+##### Automatically choose the best candidate
+
+Advantages:
+
+- fewer unresolved records;
+- more complete-looking catalogue and price coverage.
+
+Disadvantages:
+
+- introduces unsupported mappings;
+- can attach prices to the wrong canonical card;
+- hides source-data limitations;
+- makes future correction and audit more difficult.
+
+##### Discard rejected and excluded records
+
+Advantages:
+
+- less stored evidence;
+- simpler reporting.
+
+Disadvantages:
+
+- loses source traceability;
+- prevents later reprocessing;
+- hides catalogue-scope and data-quality decisions;
+- makes source count reconciliation unreliable.
+
+##### Controlled statuses with preserved evidence
+
+Advantages:
+
+- preserves uncertainty explicitly;
+- supports repeatable review and reprocessing;
+- prevents unresolved records from affecting derived prices;
+- separates expected exclusions from invalid records;
+- supports audit and portfolio evidence.
+
+Disadvantages:
+
+- requires controlled values and status-history structures;
+- requires more detailed import reports;
+- requires clear review procedures;
+- unresolved queues require ongoing maintenance.
+
+#### Consequences
+
+Positive:
+
+- invalid source records and unresolved mappings remain distinguishable;
+- ambiguous mappings cannot be silently promoted;
+- confirmed mappings have a documented evidence threshold;
+- expected MVP exclusions do not appear as import failures;
+- unresolved records cannot distort canonical-card pricing;
+- later evidence can resolve records without reconstructing discarded source data;
+- import reports can reconcile source coverage and review workload.
+
+Negative:
+
+- the data model requires several controlled statuses and evidence fields;
+- status transitions and manual decisions must be preserved;
+- review queues add operational work;
+- physical separation of source validity, mapping status, and review status increases schema complexity;
+- confirmation rules must be validated per source and mapping method.
+
+#### Validation
+
+Validate the decision with the Primal Clash fixture and controlled synthetic test cases.
+
+The validation must confirm:
+
+1. All `167` directly evidenced listing variants are classified as `confirmed`.
+2. All `4` Online Code Card products are classified as `excluded`.
+3. All `6` accepted duplicate-like records are classified as `unmatched_duplicate_candidate`.
+4. No ordinary `unmatched`, `ambiguous`, or conflict records remain in the validated Primal Clash result.
+5. No excluded or unresolved record contributes to canonical-card price calculation.
+6. A structurally invalid test record becomes `rejected` and does not enter production.
+7. A valid record with no plausible target becomes `unmatched`.
+8. A record with one plausible but insufficiently evidenced target becomes `candidate`.
+9. A record with multiple plausible targets becomes `ambiguous`.
+10. No `candidate` or `ambiguous` record becomes `confirmed` without new evidence or explicit review.
+11. Reprocessing preserves previous evidence and records the status transition.
+12. Import summary counts reconcile with the declared test scope.
+13. A row-level unresolved result does not fail an otherwise valid import run.
+14. A run-level invariant violation prevents the production merge.
+15. Repeated import does not create duplicate unresolved records or duplicate confirmed mappings.
+
+#### Follow-up
+
+- Define controlled reason codes for every status.
+- Define the physical source-record, mapping, evidence, review, and status-history tables.
+- Define evidence references for automated and manual decisions.
+- Define uniqueness constraints for active confirmed mappings.
+- Define how manual review is performed through NocoDB or administrative SQL.
+- Add unresolved-record and status-transition validation queries.
+- Add import-report reconciliation checks.
+- Add synthetic rejected, unmatched, candidate, and ambiguous fixtures.
+- Reference `ADR-009` from the data dictionary and import operating guide.
 
 ---
 
@@ -960,7 +1458,6 @@ For the Primal Clash vertical slice:
 
 The following decisions are expected before or during `M0 — Discovery` and `M3 — Data model`:
 
-- `ADR-009 — Define rejected and unmatched record handling`
 - `ADR-010 — Define backup scope, retention, and restore validation`
 
 These ADRs must not be finalised without evidence from real source files.
