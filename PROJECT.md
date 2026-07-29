@@ -10,18 +10,22 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
 
 ## Current status
 
-- Current milestone: `M2 — Infrastructure`
+- Current milestone: `M3 — Data model` exit review
 - Completed milestones:
   - `M0 — Discovery` completed and validated on 2026-07-27;
   - `M1 — Repository foundation` completed and validated on 2026-07-27.
-- Implementation status: Discovery tooling, the Primal Clash vertical-slice fixtures, the repository foundation, the GitHub Project workflow, and Markdown validation are validated; application, database, and infrastructure implementation have not started
-- Primary focus: Select and execute the first reproducible M2 infrastructure task while preserving the approved security, storage, backup, and recovery boundaries
-- Repository status:
-  - the public GitHub repository has been created;
-  - contribution, security, changelog, issue-template, pull-request-template, and roadmap files have been added;
-  - GitHub Actions Markdown validation is implemented and passing;
-  - GitHub Project fields, views, and the initial M1 issue set are configured and validated;
-  - published README and issue-template contact links have been checked.
+- Database implementation status: Physical PostgreSQL schema implemented and locally validated
+  - `21` project tables are implemented through `17` reversible dbmate migrations;
+  - `22` tables exist in `public` together with `schema_migrations`;
+  - `dbmate status` reports `Applied: 17` and `Pending: 0`;
+  - all migrations have been checked through rollback and reapply;
+  - `scripts/database/validate_schema.sql` passes with `schema validation passed`.
+- Application implementation status: Not started
+- Infrastructure implementation status:
+  - the local development environment includes WSL 2, Docker Desktop, PostgreSQL 17, DBeaver Community, dbmate, and Docker Compose;
+  - PostgreSQL is reachable locally only through `127.0.0.1`;
+  - Raspberry Pi deployment, NocoDB, Tailscale, persistent SSD deployment, backup, and restore remain planned and unvalidated.
+- Primary focus: Complete the `M3 — Data model` exit review, synchronize documentation, validate the repository, and prepare the controlled Primal Clash first-import path
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
 - Vertical-slice mapping status: Validated
   - `164` canonical cards are covered;
@@ -29,14 +33,12 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - `6` unlisted duplicate-like products are preserved as `unmatched_duplicate_candidate`;
   - `4` Online Code Card products are excluded from MVP catalogue scope;
   - no ambiguous, conflicting, or ordinary unmatched mapping rows remain.
-- Validation status: `validate_primal_clash_fixture.py` passes for fixture structure, record counts, mapping coverage, controlled statuses, unresolved-status checks, and deterministic canonical-card image metadata
-- Image mapping status: Validated at the metadata level
-  - all `164` canonical cards have unique small and large image URLs;
-  - no image metadata is missing;
-  - all URLs use HTTPS and the expected `images.pokemontcg.io` host;
-  - all URL paths match the deterministic set-code and collector-number pattern;
-  - remote availability, downloading, local storage, and backup remain future implementation and validation work.
-- Current milestone focus: Begin `M2 — Infrastructure` with one documented, reversible, and validated action at a time
+- Import implementation status: Not started
+  - Primal Clash has not yet been imported into PostgreSQL;
+  - repeat-import behaviour has been defined but not validated on real import runs;
+  - runtime `From` pricing has not been validated on imported data.
+- Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the first import unless database integration exposes a dependency
+- Next milestone: `M4 — First import`
 
 ## Delivery principles
 
@@ -139,29 +141,28 @@ Exit criteria:
 
 ### M3 — Data model
 
+**Status:** Implemented and locally validated; exit review in progress
+
 **Goal:** Create the minimum normalised PostgreSQL model.
 
-Deliverables:
+Completed deliverables:
 
 - approved catalogue-record definition;
-- `expansions` table;
-- catalogue or `cards` table;
-- `wishlist_items` table;
-- import-run metadata;
-- rejected and unmatched record structures;
-- relationships and constraints;
-- indexes;
-- migrations;
-- sample dataset;
-- data dictionary;
-- validation queries.
+- physical PostgreSQL schema with `21` project tables;
+- catalogue, edition, variant, market-product, mapping, price-snapshot, wishlist, staging, import-audit, rejection, and mapping-review structures;
+- source-scoped uniqueness constraints;
+- foreign keys, lifecycle constraints, controlled values, and indexes;
+- `17` reversible dbmate migrations;
+- data dictionary in `docs/database/data-model.md`;
+- executable schema validation in `scripts/database/validate_schema.sql`.
 
-Exit criteria:
+Exit criteria status:
 
-- one expansion and its records can be stored without uncontrolled duplicates;
-- repeated import behaviour is defined;
-- wishlist data remains independent from staging data;
-- schema assumptions are documented.
+- one expansion can be represented without uncontrolled duplicates at the schema level: satisfied;
+- repeated import behaviour is defined through `ADR-008`: satisfied;
+- wishlist data remains independent from staging data: satisfied and schema-validated;
+- schema assumptions are documented: satisfied;
+- first-import and repeat-import runtime validation remain part of `M4 — First import`.
 
 ### M4 — First import
 

@@ -6,14 +6,15 @@ It distinguishes planned work from implemented and validated results. Dates are 
 
 ## Current status
 
-* Current milestone: `M2 — Infrastructure`
-* Completed milestones: `M0 — Discovery`, `M1 — Repository foundation`
-* First planned release: `v0.1.0`
-* Application implementation status: Not started
-* Database implementation status: Not started
-* Infrastructure implementation status: Not started
+- Current milestone: `M3 — Data model` exit review
+- Completed milestones: `M0 — Discovery`, `M1 — Repository foundation`
+- First planned release: `v0.1.0`
+- Application implementation status: Not started
+- Database implementation status: Physical PostgreSQL schema implemented and locally validated
+- Infrastructure implementation status: Local development database environment available; Raspberry Pi deployment remains not started
+- Next milestone: `M4 — First import`
 
-The Primal Clash discovery vertical slice has been validated and provides the evidence base for later data modelling and import work.
+The Primal Clash discovery vertical slice is validated. The physical schema now provides the controlled storage, staging, audit, mapping-review, pricing, and wishlist boundaries required for the first import. Primal Clash has not yet been imported into PostgreSQL, and repeat-import behaviour has not yet been validated on real import runs.
 
 ## Release strategy
 
@@ -21,13 +22,13 @@ The project will deliver one complete, validated vertical slice before expanding
 
 The first release will focus on:
 
-* one validated expansion;
-* a reproducible self-hosted deployment;
-* a minimal normalized catalogue;
-* a persistent wishlist workflow;
-* CSV export;
-* documented backup and restore;
-* clear validation evidence and known limitations.
+- one validated expansion;
+- a reproducible self-hosted deployment;
+- a minimal normalized catalogue;
+- a persistent wishlist workflow;
+- CSV export;
+- documented backup and restore;
+- clear validation evidence and known limitations.
 
 ## `v0.1.0` — MVP release
 
@@ -57,15 +58,15 @@ Later milestones must not bypass unresolved dependencies from earlier milestones
 
 Completed outcomes include:
 
-* source inventory and representative field analysis;
-* accepted canonical-card identity boundary;
-* accepted source-scoped import keys;
-* accepted separation of canonical cards and Cardmarket products;
-* accepted edition, language, and finish concepts;
-* Primal Clash selected as the first vertical slice;
-* direct `idProduct` mapping evidence;
-* deterministic canonical-card image metadata;
-* validated Primal Clash fixtures and validation scripts.
+- source inventory and representative field analysis;
+- accepted canonical-card identity boundary;
+- accepted source-scoped import keys;
+- accepted separation of canonical cards and Cardmarket products;
+- accepted edition, language, and finish concepts;
+- Primal Clash selected as the first vertical slice;
+- direct `idProduct` mapping evidence;
+- deterministic canonical-card image metadata;
+- validated Primal Clash fixtures and validation scripts.
 
 ### `M1 — Repository foundation`
 
@@ -73,22 +74,22 @@ Completed outcomes include:
 
 Completed outcomes:
 
-* professional repository structure;
-* cross-linked core documentation;
-* contribution guidance;
-* security policy;
-* changelog;
-* issue templates;
-* pull request template;
-* initial release roadmap;
-* GitHub Project configuration;
-* validated Markdown workflow.
+- professional repository structure;
+- cross-linked core documentation;
+- contribution guidance;
+- security policy;
+- changelog;
+- issue templates;
+- pull request template;
+- initial release roadmap;
+- GitHub Project configuration;
+- validated Markdown workflow.
 
 Exit condition:
 
-* repository purpose, scope, status, decisions, and next actions are clear;
-* documentation links work;
-* planned, implemented, and validated work are distinguishable.
+- repository purpose, scope, status, decisions, and next actions are clear;
+- documentation links work;
+- planned, implemented, and validated work are distinguishable.
 
 ### `M2 — Infrastructure`
 
@@ -96,46 +97,46 @@ Exit condition:
 
 Planned outcomes:
 
-* Raspberry Pi preparation;
-* SSD-backed persistent storage;
-* Docker and Docker Compose;
-* PostgreSQL deployment;
-* NocoDB deployment;
-* private access through Tailscale;
-* secret handling;
-* database and file backups;
-* tested restore procedure;
-* restart recovery documentation.
+- Raspberry Pi preparation;
+- SSD-backed persistent storage;
+- Docker and Docker Compose;
+- PostgreSQL deployment;
+- NocoDB deployment;
+- private access through Tailscale;
+- secret handling;
+- database and file backups;
+- tested restore procedure;
+- restart recovery documentation.
 
 Exit condition:
 
-* the platform is reachable privately from a phone;
-* PostgreSQL is not publicly exposed;
-* persistent data survives container and device restarts;
-* backup and restore are validated.
+- the platform is reachable privately from a phone;
+- PostgreSQL is not publicly exposed;
+- persistent data survives container and device restarts;
+- backup and restore are validated.
 
 ### `M3 — Data model`
 
-**Status:** Planned
+**Status:** Implemented and locally validated; exit review in progress
 
-Planned outcomes:
+Completed outcomes:
 
-* physical PostgreSQL schema;
-* migrations;
-* source-scoped uniqueness constraints;
-* canonical-card and market-product separation;
-* edition and variant structures;
-* price snapshots;
-* wishlist items;
-* import-run tracking;
-* rejected, unmatched, and ambiguous record structures;
-* data dictionary and validation queries.
+- physical PostgreSQL schema with `21` project tables;
+- `17` reversible dbmate migrations with no pending migrations;
+- source-scoped uniqueness constraints;
+- canonical-card, edition, variant, market-product, mapping, and price-snapshot separation;
+- wishlist data isolated from staging and market-price ownership;
+- import-run tracking and staging structures;
+- rejected-record and mapping-review workflows;
+- data dictionary and executable schema-wide validation;
+- successful rollback and reapply checks for all migrations.
 
-Exit condition:
+Exit condition status:
 
-* one expansion can be stored without uncontrolled duplicates;
-* repeated import behaviour is defined;
-* wishlist data remains independent from staging data.
+- one expansion can be represented without uncontrolled duplicates at the schema level: satisfied;
+- repeated import behaviour is defined: satisfied;
+- wishlist data remains independent from staging data: satisfied;
+- runtime first-import and repeat-import validation remain in `M4 — First import`.
 
 ### `M4 — First import`
 
@@ -143,21 +144,21 @@ Exit condition:
 
 Planned outcomes:
 
-* documented Primal Clash source-to-target mapping;
-* import command or script;
-* imported canonical cards and market data;
-* linked image references;
-* duplicate checks;
-* rejected and unmatched reports;
-* missing-image report;
-* repeat-import validation;
-* import validation report.
+- documented Primal Clash source-to-target mapping;
+- import command or script;
+- imported canonical cards and market data;
+- linked image references;
+- duplicate checks;
+- rejected and unmatched reports;
+- missing-image report;
+- repeat-import validation;
+- import validation report.
 
 Exit condition:
 
-* Primal Clash is imported completely or discrepancies are explicitly documented;
-* repeat imports do not create uncontrolled duplicates;
-* unresolved records remain visible.
+- Primal Clash is imported completely or discrepancies are explicitly documented;
+- repeat imports do not create uncontrolled duplicates;
+- unresolved records remain visible.
 
 ### `M5 — Wishlist workflow`
 
@@ -165,22 +166,22 @@ Exit condition:
 
 Planned outcomes:
 
-* mobile-friendly catalogue view;
-* search and filters;
-* card-image preview;
-* wanted state;
-* quantity and notes;
-* filtered Wishlist view;
-* CSV export;
-* mobile workflow validation;
-* documented NocoDB limitations.
+- mobile-friendly catalogue view;
+- search and filters;
+- card-image preview;
+- wanted state;
+- quantity and notes;
+- filtered Wishlist view;
+- CSV export;
+- mobile workflow validation;
+- documented NocoDB limitations.
 
 Exit condition:
 
-* the complete primary user journey works from a phone;
-* wishlist data persists;
-* catalogue data is protected from unintended editing;
-* CSV export contains the required fields.
+- the complete primary user journey works from a phone;
+- wishlist data persists;
+- catalogue data is protected from unintended editing;
+- CSV export contains the required fields.
 
 ### `M6 — Catalogue expansion`
 
@@ -188,19 +189,19 @@ Exit condition:
 
 Planned outcomes:
 
-* repeatable batch-import process;
-* supported expansion imports;
-* import summaries;
-* rejected and unmatched queues;
-* missing-image reports;
-* duplicate and data-quality reports;
-* explicit unsupported-expansion records.
+- repeatable batch-import process;
+- supported expansion imports;
+- import summaries;
+- rejected and unmatched queues;
+- missing-image reports;
+- duplicate and data-quality reports;
+- explicit unsupported-expansion records.
 
 Exit condition:
 
-* every prepared expansion is imported or explicitly marked unsupported;
-* all import runs are traceable;
-* unresolved records are reviewable.
+- every prepared expansion is imported or explicitly marked unsupported;
+- all import runs are traceable;
+- unresolved records are reviewable.
 
 ### `M7 — MVP release`
 
@@ -208,70 +209,70 @@ Exit condition:
 
 Planned outcomes:
 
-* complete MVP acceptance test;
-* validated backup and restore documentation;
-* architecture diagram;
-* setup and operating guide;
-* screenshots;
-* demo walkthrough;
-* release notes;
-* known limitations;
-* lessons learned;
-* Git tag `v0.1.0`.
+- complete MVP acceptance test;
+- validated backup and restore documentation;
+- architecture diagram;
+- setup and operating guide;
+- screenshots;
+- demo walkthrough;
+- release notes;
+- known limitations;
+- lessons learned;
+- Git tag `v0.1.0`.
 
 Exit condition:
 
-* all acceptance criteria in `MVP_SCOPE.md` are satisfied;
-* documentation matches the validated implementation;
-* major decisions and known limitations are published;
-* release evidence is complete.
+- all acceptance criteria in `MVP_SCOPE.md` are satisfied;
+- documentation matches the validated implementation;
+- major decisions and known limitations are published;
+- release evidence is complete.
 
 ## Release gates
 
 The `v0.1.0` release must not be published until:
 
-* Primal Clash is imported and validated;
-* catalogue images are accessible;
-* search and filtering work;
-* wishlist selections persist;
-* quantity and notes persist;
-* CSV export works;
-* informational `From` pricing follows the accepted `avg30` rule;
-* repeated import behaviour is validated;
-* rejected and unmatched records are reported;
-* the application recovers after restart;
-* backup and restore are tested;
-* security exposure is documented;
-* major ADRs are recorded;
-* known limitations are published.
+- Primal Clash is imported and validated;
+- catalogue images are accessible;
+- search and filtering work;
+- wishlist selections persist;
+- quantity and notes persist;
+- CSV export works;
+- informational `From` pricing follows the accepted `avg30` rule;
+- repeated import behaviour is validated;
+- rejected and unmatched records are reported;
+- the application recovers after restart;
+- backup and restore are tested;
+- security exposure is documented;
+- major ADRs are recorded;
+- known limitations are published.
 
 ## Deferred work
 
 The following are not part of `v0.1.0` unless a separate scope decision is accepted:
 
-* real-time market-price synchronization;
-* price-history analytics;
-* automated purchasing;
-* Cardmarket account integration;
-* native mobile applications;
-* multi-user permissions;
-* public registration;
-* collection-value analytics;
-* image recognition;
-* AI matching;
-* recommendation features;
-* full offline mode;
-* public internet access for the MVP application.
+- real-time market-price synchronization;
+- price-history analytics;
+- automated purchasing;
+- Cardmarket account integration;
+- native mobile applications;
+- multi-user permissions;
+- public registration;
+- collection-value analytics;
+- image recognition;
+- AI matching;
+- recommendation features;
+- full offline mode;
+- public internet access for the MVP application.
 
 ## Future releases
 
 Potential post-MVP releases may address:
 
-* edition- and variant-specific wishlist preferences;
-* broader catalogue coverage;
-* improved mobile user experience;
-* a custom frontend if NocoDB proves insufficient;
-* additional marketplace sources;
-* stronger automation and monitoring.
+- edition- and variant-specific wishlist preferences;
+- broader catalogue coverage;
+- improved mobile user experience;
+- a custom frontend if NocoDB proves insufficient;
+- additional marketplace sources;
+- stronger automation and monitoring.
 
 These items are exploratory and are not approved commitments.

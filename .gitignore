@@ -40,8 +40,9 @@ Thumbs.db
 
 # Database and backup files
 *.sql
-!db/schema.sql
 !db/migrations/*.sql
+!scripts/database/*.sql
+!db/schema.sql
 *.dump
 *.backup
 *.sqlite

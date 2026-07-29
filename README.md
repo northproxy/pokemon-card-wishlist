@@ -8,24 +8,24 @@ The project is also a public learning portfolio. It is intended to demonstrate s
 
 ## Project status
 
-**Current milestone:** `M2 — Infrastructure`
+**Current milestone:** `M3 — Data model`
 
 `M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27.
 
-Discovery tooling, the Primal Clash vertical-slice fixtures, the repository foundation, the GitHub Project workflow, and Markdown validation are validated. Application, database, and infrastructure implementation have not started.
+Discovery tooling, the Primal Clash vertical-slice fixtures, the repository foundation, the GitHub Project workflow, Markdown validation, and the local PostgreSQL development environment are validated. The physical PostgreSQL schema has now been implemented through `17` incremental `dbmate` migrations and validated locally with rollback/reapply checks and executable schema-wide validation.
 
-The current priority is to prepare and execute the first validated `M2 — Infrastructure` task without bypassing unresolved security, storage, backup, or recovery dependencies.
+The validated schema contains `21` project tables covering catalogue data, Cardmarket products and prices, import staging and audit records, mapping review history, production mappings, and wishlist data. The application, first data import, Raspberry Pi deployment, NocoDB deployment, private access, backup, restore, and production infrastructure remain unimplemented. The current priority is to prepare and validate the first controlled Primal Clash import path without bypassing the accepted staging and transactional-merge rules.
 
 The first validated vertical slice is:
 
-* Pokémon TCG Data set: `xy5`;
-* Cardmarket expansion: `1585`;
-* expansion name: Primal Clash;
-* `164` canonical cards covered;
-* `167` Cardmarket listing variants mapped through direct `idProduct` evidence;
-* `6` unlisted products preserved as `unmatched_duplicate_candidate`;
-* `4` Online Code Card products excluded from MVP catalogue scope;
-* no ambiguous, conflicting, or ordinary unmatched mapping rows remaining.
+- Pokémon TCG Data set: `xy5`;
+- Cardmarket expansion: `1585`;
+- expansion name: Primal Clash;
+- `164` canonical cards covered;
+- `167` Cardmarket listing variants mapped through direct `idProduct` evidence;
+- `6` unlisted products preserved as `unmatched_duplicate_candidate`;
+- `4` Online Code Card products excluded from MVP catalogue scope;
+- no ambiguous, conflicting, or ordinary unmatched mapping rows remaining.
 
 ## Project goals
 
@@ -104,6 +104,10 @@ Primal Clash is the validated discovery vertical slice and will remain the first
 - [Changelog](CHANGELOG.md)
 - [Learning Log](LEARNING_LOG.md)
 - [Discovery Documentation](docs/discovery/README.md)
+- [Local PostgreSQL development setup](docs/database/local-postgresql-development-setup.md)
+- [PostgreSQL data model](docs/database/data-model.md)
+- [Executable schema validation](scripts/database/validate_schema.sql)
+- [Image download utilities](scripts/images/README.md)
 
 ## Success criteria
 

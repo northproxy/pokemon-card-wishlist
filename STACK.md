@@ -2,7 +2,29 @@
 
 ## Status
 
-This document describes the proposed MVP application and infrastructure stack. GitHub is already used as the repository platform, and GitHub Actions Markdown validation is implemented and validated. Other technology choices remain provisional until their ADRs are accepted and validated. The catalogue identity model and source-key strategy have already been accepted in `ADR-005`, `ADR-006`, `ADR-007`, and `ADR-011`.
+This document distinguishes the locally implemented development stack from the still-proposed Raspberry Pi MVP deployment.
+
+The following are implemented and locally validated:
+
+- GitHub repository and project workflow;
+- GitHub Actions Markdown validation;
+- WSL 2 and Docker Desktop development environment;
+- PostgreSQL 17 accessed only through `127.0.0.1`;
+- dbmate migration workflow;
+- physical PostgreSQL schema with `21` project tables and `17` applied migrations;
+- executable schema validation through `scripts/database/validate_schema.sql`.
+
+The following remain proposed or planned for infrastructure and application milestones:
+
+- Raspberry Pi OS deployment;
+- SSD-backed persistent Docker volumes;
+- NocoDB;
+- Tailscale private access;
+- production backup and restore;
+- restart recovery validation;
+- mobile wishlist workflow.
+
+The physical schema is documented in `docs/database/data-model.md`. Primal Clash import logic and runtime import validation remain part of `M4 — First import`.
 
 ## Recommended MVP stack
 
@@ -12,7 +34,7 @@ This document describes the proposed MVP application and infrastructure stack. G
 | Operating system | Raspberry Pi OS Lite 64-bit | Stable, lightweight, and well supported | Proposed |
 | Primary storage | USB-connected SSD | More suitable than microSD for database, images, and backups | Proposed |
 | Containers | Docker and Docker Compose | Reproducible deployment and simpler service management | Proposed |
-| Database | PostgreSQL | Relational integrity, mature backup tools, and future extensibility | Proposed |
+| Database | PostgreSQL 17 | Relational integrity, mature backup tools, and future extensibility | Implemented and locally validated for development; Raspberry Pi deployment planned |
 | Admin and UI | NocoDB | Fast mobile-friendly catalogue and wishlist workflow without a custom frontend | Proposed |
 | Remote access | Tailscale | Private access without public port forwarding | Proposed |
 | Image storage | Local SSD filesystem | Simple and inexpensive for the MVP | Proposed |
@@ -75,9 +97,20 @@ The main trade-offs are:
 
 The complete mobile flow must be validated with one full expansion before this decision is accepted.
 
-## Accepted conceptual data model
+## Implemented physical data model
 
-The final physical schema remains a task for `M3 — Data model`, but discovery has established the following entity boundaries:
+The accepted conceptual boundaries have been implemented as a normalized PostgreSQL schema. The authoritative table-level definitions, controlled values, constraints, indexes, lifecycle rules, and migration order are maintained in `docs/database/data-model.md`.
+
+The schema contains `21` project tables across these responsibilities:
+
+- catalogue foundation: `expansions`, `expansion_source_identifiers`, `cards`, `card_editions`, and `card_variants`;
+- market catalogue and pricing: `market_products`, `card_market_product_mappings`, and `market_price_snapshots`;
+- import lifecycle and staging: `import_runs`, `staging_cards`, `staging_market_products`, `staging_market_prices`, and `staging_market_mappings`;
+- import audit and rejection handling: `import_record_outcomes`, `rejected_source_records`, and `rejected_source_record_reasons`;
+- mapping review: `card_market_mapping_cases`, `mapping_case_observations`, `mapping_candidates`, and `mapping_status_history`;
+- user-generated data: `wishlist_items`.
+
+The schema preserves the accepted hierarchy:
 
 ```text
 canonical card
@@ -87,132 +120,19 @@ canonical card
                 → price snapshot
 ```
 
-### Catalogue data
+Implemented boundaries include:
 
-Expected entities:
+- source-scoped identity for canonical catalogue records and market products;
+- separation of production data from permissive staging records;
+- controlled rejected and unresolved mapping workflows;
+- append-only market price snapshots;
+- one active production mapping per market product;
+- canonical-card wishlist ownership independent from staging, language, finish, edition, and price data;
+- lifecycle and referential-integrity constraints designed to preserve audit history and wishlist data.
 
-- `expansions`;
-- `cards` for canonical set-specific cards;
-- `card_editions`;
-- `card_variants`;
-- source identifiers and source mappings;
-- image references.
+The schema is implemented through `17` reversible dbmate migrations. Local validation confirms `21` project tables, `22` total `public` tables including `schema_migrations`, no pending migrations, successful rollback and reapply checks, and a passing schema-wide validation script.
 
-A canonical card is identified by a source-scoped key such as `('pokemon_tcg_data', 'xy5-20')`. Language and finish do not create additional canonical cards.
-
-### Market data
-
-Expected entities:
-
-- `market_products`;
-- `card_market_product_mappings`;
-- `market_price_snapshots`.
-
-A Cardmarket product is identified independently by a source-scoped key such as `('cardmarket', '273532')`. A canonical card may map to zero, one, or many market products.
-
-Mapping records should preserve at least:
-
-- mapping status;
-- mapping method;
-- confidence or evidence level;
-- unresolved edition or finish details;
-- raw source identifiers.
-
-Price snapshots remain attached to market products. The canonical-card display price is a derived value: the minimum non-null Cardmarket `avg30` among linked English and German editions and variants.
-
-### User-generated data
-
-Expected entities:
-
-- `wishlist_items`;
-- wanted quantity;
-- notes;
-- later optional edition and variant preferences.
-
-The MVP wishlist references the canonical card. Edition- and variant-specific selection is deferred.
-
-### Import-control data
-
-Expected entities:
-
-- import runs;
-- staging records;
-- rejected records;
-- unmatched records;
-- ambiguous mappings;
-- validation summaries.
-
-Unknown or ambiguous source data must not be silently corrected.
-
-## Preliminary entity sketches
-
-These are conceptual sketches, not final database definitions.
-
-### `cards`
-
-| Field | Notes |
-|---|---|
-| internal primary key | Implementation choice remains open |
-| `source_system` | Canonical catalogue source |
-| `source_card_id` | For example `xy5-20` |
-| `expansion_id` | Internal relationship to `expansions` |
-| `collector_number` | Stored as text |
-| `name` | Canonical display name |
-| `rarity` | Optional source metadata |
-| image reference | Local path or internal URL |
-
-Required uniqueness: `(source_system, source_card_id)`.
-
-### `card_editions`
-
-| Field | Notes |
-|---|---|
-| `card_id` | Links to the canonical card |
-| source edition code | For example `V1` or `V2` |
-| display name | For example `Standard` or `Build-A-Bear Workshop` |
-| source evidence | URL, source record, or mapping reference |
-
-### `card_variants`
-
-| Field | Notes |
-|---|---|
-| `edition_id` | Links to an edition |
-| language | Initially English or German |
-| finish | Normal, reverse holo, holo, or controlled `other` |
-| mapping status | Confirmed, candidate, ambiguous, or excluded |
-
-### `market_products`
-
-| Field | Notes |
-|---|---|
-| `source_system` | `cardmarket` |
-| `source_product_id` | Cardmarket `idProduct` |
-| source expansion ID | Cardmarket `idExpansion` |
-| source metaproduct ID | Preserved when available |
-| raw product name | Preserved exactly from source |
-
-Required uniqueness: `(source_system, source_product_id)`.
-
-### `market_price_snapshots`
-
-| Field | Notes |
-|---|---|
-| `market_product_id` | Links to one market product |
-| snapshot timestamp | Source snapshot time |
-| `avg30` | Non-foil 30-day average when available |
-| `avg30_holo` | Foil/holo 30-day average when available |
-| currency | Must be stored explicitly |
-
-### `wishlist_items`
-
-| Field | Notes |
-|---|---|
-| `card_id` | Links to the canonical card |
-| wanted state | Boolean or presence-based design remains open |
-| quantity | Default 1; must be positive |
-| notes | Optional |
-| edition preference | Deferred for the initial UI |
-| variant preference | Deferred for the initial UI |
+This validation covers schema structure and database invariants. It does not yet validate the Primal Clash source-to-target transformation, transactional merge behaviour on real records, repeat-import idempotency, rejected or unresolved outcomes from real import runs, or the runtime canonical-card `From` price query. Those are `M4 — First import` responsibilities.
 
 ## Storage recommendation
 

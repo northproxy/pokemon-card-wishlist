@@ -268,3 +268,161 @@ will continue one documented, reversible, and validated action at a time.
 Select the first M2 infrastructure task, confirm its dependencies and rollback
 path, and begin with one reproducible action on the target Raspberry Pi or its
 prepared environment.
+
+---
+
+## 2026-07-28 — Building a reproducible local PostgreSQL workflow
+
+#### What I worked on
+
+Prepared Windows for local PostgreSQL development using WSL 2, Ubuntu 24.04,
+Docker Desktop, DBeaver Community, a PostgreSQL 17 container, and `dbmate`
+running through Docker Compose.
+
+Created a local `.env`, a safe `.env.example`, a Compose service for PostgreSQL,
+a tools profile for `dbmate`, a tracked `db/migrations/` directory, and an
+automatically generated `db/schema.sql`.
+
+#### What I learned
+
+Docker Desktop can expose the same Linux Docker engine to both Windows
+PowerShell and a WSL distribution. PostgreSQL can therefore remain isolated in a
+container while DBeaver connects through a local-only host port.
+
+Inside a Docker network, one container connects to another by Compose service
+name such as `postgres`, not by `localhost`. I also learned that `dbmate` reads
+`DATABASE_URL`, creates its own `schema_migrations` table, and can generate a
+schema dump after migration changes.
+
+A migration workflow is not validated merely because a migration can be
+created. Applying a migration, checking its status, rolling it back, and
+confirming the final schema state are separate validation steps.
+
+#### What was difficult
+
+Port `5432` was initially occupied by a separately installed PostgreSQL 18
+Windows service. Identifying the listener required tracing the process from
+`postgres.exe` to `pg_ctl.exe` and then to the `postgresql-x64-18` service.
+
+The initial `.env` was written with a UTF-8 byte-order mark. Docker Compose
+accepted it, but `dbmate` rejected the invisible leading character. The file had
+to be rewritten as UTF-8 without BOM.
+
+The repository-wide `*.sql` ignore rule also hid both migration files and
+`db/schema.sql`. Explicit exceptions were required so executable migrations
+could be version-controlled without allowing arbitrary SQL dumps into Git.
+
+#### Decision or change
+
+Local database development now uses PostgreSQL 17 and `dbmate` exclusively
+through Docker Compose. PostgreSQL Server and `dbmate` are not project
+dependencies installed directly in Windows.
+
+The PostgreSQL container binds to `127.0.0.1:5432`, secrets remain in the
+ignored `.env`, and `.env.example` documents the required variables without
+containing credentials.
+
+The unrelated Windows PostgreSQL 18 service was stopped and its automatic
+startup disabled to prevent a recurring local port conflict. It was not
+uninstalled and its data was not deleted.
+
+This validates the local development workflow only. Raspberry Pi deployment,
+persistent SSD storage, NocoDB, private access, backup, restore, and restart
+recovery remain separate infrastructure work.
+
+#### Evidence
+
+- commit `042d92b` (`Add local PostgreSQL development setup`);
+- `compose.yaml`;
+- `.env.example`;
+- `db/schema.sql`;
+- `db/migrations/.gitkeep`;
+- `docs/database/local-postgresql-development-setup.md`;
+- successful `docker run --rm hello-world`;
+- successful PostgreSQL health check and `psql` query;
+- successful DBeaver connection test;
+- successful `dbmate` `new`, `up`, `status`, and `down` commands;
+- final migration status: `Applied: 0`, `Pending: 0`.
+
+#### Next experiment
+
+Create the first real PostgreSQL migration from the accepted physical data-model
+requirements, then validate constraints, indexes, rollback behavior, and schema
+output against executable database checks.
+
+---
+
+## 2026-07-29 — Turning the conceptual model into validated migrations
+
+#### What I worked on
+
+Translated the accepted conceptual data model into `17` incremental PostgreSQL
+migrations using `dbmate`. The migrations created `21` project tables for the
+catalogue hierarchy, market products and prices, import staging and audit data,
+mapping review history, production mappings, and wishlist data.
+
+Applied each migration against PostgreSQL 17, inspected the resulting tables,
+constraints, and indexes, and validated rollback and repeated application. I
+also created `scripts/database/validate_schema.sql` as a permanent executable
+schema-wide validation utility.
+
+#### What I learned
+
+A conceptual data model is not implementation-ready until table order, cyclic
+foreign-key dependencies, composite hierarchy keys, controlled values, partial
+unique indexes, and rollback behavior are expressed in executable SQL.
+
+Small migrations made dependency problems easier to detect and recover from.
+For example, the mapping review chain required a later foreign key from
+`card_market_mapping_cases` to `mapping_case_observations`, and composite foreign
+keys required explicit hierarchy uniqueness on parent tables.
+
+I also learned that database-level constraints and schema-wide validation serve
+different purposes. Constraints reject invalid individual writes, while the
+validation script checks cross-table invariants such as confirmed mapping cases
+having exactly one active production mapping and price snapshots belonging to
+compatible successful import runs.
+
+#### What was difficult
+
+The mapping domain contains several intentional dependency cycles and
+polymorphic audit relationships. These could not be represented safely by
+creating all tables in one large SQL file or by adding every foreign key at the
+first possible moment.
+
+Running `dbmate` directly inside WSL also required a WSL-local installation and
+a `DATABASE_URL` built from the ignored `.env`. Repository-wide `git diff
+--check` output was initially noisy because unrelated files still used Windows
+line endings, so migration checks had to be scoped to the files being changed.
+
+#### Decision or change
+
+The physical PostgreSQL schema is now implemented and locally validated. The
+final local state is:
+
+- `17` applied migrations;
+- `0` pending migrations;
+- `21` project tables;
+- `22` total public tables including `schema_migrations`;
+- successful rollback and reapplication of every migration or migration package;
+- successful schema-wide validation.
+
+This completes schema creation, but it does not yet validate the import pipeline,
+repeat-import merge behavior with real data, runtime `From` price calculation,
+or the user-facing wishlist workflow.
+
+#### Evidence
+
+- `db/migrations/`;
+- `docs/database/data-model.md`;
+- `scripts/database/validate_schema.sql`;
+- `dbmate status` showing `Applied: 17` and `Pending: 0`;
+- PostgreSQL table inventory showing `21` project tables;
+- successful migration rollback and reapplication output;
+- validation output: `schema validation passed`.
+
+#### Next experiment
+
+Prepare a controlled Primal Clash bootstrap dataset and execute the first staged
+import path through validation and transactional merge without creating
+uncontrolled duplicates or modifying wishlist-owned data.

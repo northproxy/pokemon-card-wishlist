@@ -42,6 +42,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `ADR-008` defining staging and validated transactional merges for repeated imports.
 - `ADR-009` defining controlled rejected and unresolved-record review states.
 - `ADR-010` proposing backup scope, retention, and restore validation.
+- Permanent image download utility in
+  `scripts/images/download_card_images.py` for downloading small and large
+  Pokemon TCG Data card images into set-specific local directories.
+- Usage and validation documentation in `scripts/images/README.md`.
+- Reproducible local PostgreSQL development environment using Docker Compose.
+- Local environment template in `.env.example` with secrets kept outside Git.
+- Docker-based `dbmate` service and tracked migration directory under `db/`.
+- Local PostgreSQL development and troubleshooting guide in
+  `docs/database/local-postgresql-development-setup.md`.
+- Seventeen incremental `dbmate` migrations implementing the complete physical
+  PostgreSQL schema across `21` project tables.
+- Permanent executable schema validation in
+  `scripts/database/validate_schema.sql`.
 
 ### Changed
 
@@ -54,6 +67,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Accepted `ADR-008` after project-owner review.
 - Accepted `ADR-009` after project-owner review.
 - Recorded `ADR-010` as `Proposed` pending M2 implementation and restore-test evidence.
+- Advanced the current project focus to `M3 — Data model` after preparing the
+  local database development environment.
+- Clarified that local PostgreSQL development is implemented and validated while
+  Raspberry Pi deployment, backup, restore, NocoDB, and private access remain
+  planned.
+- Updated the data-model status from conceptual and not started to implemented
+  and locally validated.
+- Advanced the M3 focus from schema creation to the controlled Primal Clash
+  bootstrap and first import path.
 
 ### Validated
 
@@ -74,6 +96,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Validated the GitHub Project fields, views, filters, sorting, and initial M1 issue set.
 - Verified all public README documentation links, the Markdown workflow badge, and the issue-template contact links.
 - Confirmed that the required M1 repository files are present and the working tree is clean.
+- Validated the complete `xy5` image download workflow:
+  - processed `164` card records;
+  - confirmed `328` PNG files under `images/raw/xy5/`;
+  - confirmed that no `.part` files remained;
+  - repeated the run with `0` downloads, `328` existing files, `0` failures,
+    `0` invalid records, and `0` missing-image records.
+- Validated WSL 2 and Docker Desktop integration from both Windows and Ubuntu
+  24.04.
+- Validated PostgreSQL 17 container health, local-only port binding, and DBeaver
+  connectivity.
+- Validated `dbmate` through Docker for migration creation, status checks,
+  application, schema generation, and rollback.
+- Confirmed that `.env` is ignored by Git and that tracked SQL migrations and
+  `db/schema.sql` are exempted from the general `*.sql` ignore rule.
+- Applied and rollback-validated all `17` schema migrations with `dbmate`.
+- Confirmed `21` project tables and `22` total public tables including
+  `schema_migrations`.
+- Validated source-scoped uniqueness, catalogue hierarchy constraints, import
+  lifecycle rules, staging-state rules, mapping review consistency, active
+  production mappings, price snapshot integrity, and wishlist isolation.
+- Passed the permanent schema-wide executable validation with
+  `schema validation passed`.
 
 ### Security
 
@@ -81,6 +125,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Documented that secrets must remain outside the repository.
 - Documented that PostgreSQL must not be exposed directly to the public internet.
 - Documented planned security controls for private access, backups, dependency review, imported data, and restore testing.
+- Bound the local PostgreSQL port to `127.0.0.1` rather than all network
+  interfaces.
+- Disabled automatic startup of the unrelated Windows PostgreSQL 18 service to
+  prevent local port conflicts without deleting its data.
 
 ### Documentation
 
@@ -89,17 +137,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Updated the public project status to reflect completion of discovery and the start of repository-foundation work.
 - Updated the public project status to reflect completion of the repository foundation and the start of infrastructure work.
 - Added contribution workflow, commit guidance, pull request expectations, validation evidence requirements, and scope-control rules.
+- Added local PostgreSQL setup and troubleshooting documentation.
+- Added a README link to the local PostgreSQL development guide.
+- Added a README link to the image download utilities documentation.
 
 ### Planned
 
 The following remain planned and are not yet implemented or validated:
 
-- Docker and Docker Compose infrastructure;
-- PostgreSQL deployment;
+- Raspberry Pi Docker and Docker Compose deployment;
+- Raspberry Pi PostgreSQL deployment and persistent SSD storage;
 - NocoDB deployment;
 - Tailscale private access;
-- persistent SSD storage;
-- database schema and migrations;
 - import pipeline;
 - wishlist workflow;
 - CSV export;
