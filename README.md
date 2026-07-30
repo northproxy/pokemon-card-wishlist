@@ -8,24 +8,35 @@ The project is also a public learning portfolio. It is intended to demonstrate s
 
 ## Project status
 
-**Current milestone:** `M3 — Data model`
+**Current milestone:** `M4 — First import`
 
-`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27.
+`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27. `M3 — Data model` was implemented and locally validated on 2026-07-29.
 
-Discovery tooling, the Primal Clash vertical-slice fixtures, the repository foundation, the GitHub Project workflow, Markdown validation, and the local PostgreSQL development environment are validated. The physical PostgreSQL schema has now been implemented through `17` incremental `dbmate` migrations and validated locally with rollback/reapply checks and executable schema-wide validation.
+The physical PostgreSQL schema contains `21` project tables implemented through `17` incremental `dbmate` migrations. The controlled Primal Clash import is now in progress. Canonical cards have been imported, and the complete Cardmarket product path from `cardmarket-products.json` through staging to production has been implemented and validated.
 
-The validated schema contains `21` project tables covering catalogue data, Cardmarket products and prices, import staging and audit records, mapping review history, production mappings, and wishlist data. The application, first data import, Raspberry Pi deployment, NocoDB deployment, private access, backup, restore, and production infrastructure remain unimplemented. The current priority is to prepare and validate the first controlled Primal Clash import path without bypassing the accepted staging and transactional-merge rules.
+The Cardmarket product fixture contains `177` records. Each persistent staging run stores all `177` as valid records. Production merges classify `173` products as eligible and record the `4` Online Code Card products as skipped and outside MVP collection scope. The first merge inserted `173` products; the repeated merge produced `173` unchanged outcomes, `4` skipped outcomes, and no duplicate source identities.
 
-The first validated vertical slice is:
+The current priority is the next controlled block:
+
+```text
+cardmarket-mappings.json
+→ staging_market_mappings
+→ card_market_product_mappings
+```
+
+Cardmarket mappings, derived editions and variants, market-price snapshots, runtime `From` pricing, the complete import validation report, the application, Raspberry Pi deployment, NocoDB, private access, backup, and restore remain incomplete.
+
+The validated vertical slice currently includes:
 
 - Pokémon TCG Data set: `xy5`;
 - Cardmarket expansion: `1585`;
 - expansion name: Primal Clash;
-- `164` canonical cards covered;
-- `167` Cardmarket listing variants mapped through direct `idProduct` evidence;
+- `164` canonical cards imported and active;
+- `173` eligible Cardmarket products imported and active;
+- `4` Online Code Card products excluded through explicit skipped outcomes;
+- `167` Cardmarket listing variants represented in the validated mapping fixture;
 - `6` unlisted products preserved as `unmatched_duplicate_candidate`;
-- `4` Online Code Card products excluded from MVP catalogue scope;
-- no ambiguous, conflicting, or ordinary unmatched mapping rows remaining.
+- no ambiguous, conflicting, or ordinary unmatched mapping rows in the fixture.
 
 ## Project goals
 
@@ -107,6 +118,7 @@ Primal Clash is the validated discovery vertical slice and will remain the first
 - [Local PostgreSQL development setup](docs/database/local-postgresql-development-setup.md)
 - [PostgreSQL data model](docs/database/data-model.md)
 - [Executable schema validation](scripts/database/validate_schema.sql)
+- [Primal Clash source-to-target contract](docs/import/primal-clash-source-to-target.md)
 - [Image download utilities](scripts/images/README.md)
 
 ## Success criteria

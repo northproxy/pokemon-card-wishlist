@@ -55,6 +55,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   PostgreSQL schema across `21` project tables.
 - Permanent executable schema validation in
   `scripts/database/validate_schema.sql`.
+- Controlled Primal Clash canonical-card staging and production import scripts.
+- Cardmarket product staging importer in `scripts/import/import_primal_clash_market_products.py`.
+- Controlled Cardmarket product rollback injector in `scripts/import/fail_import_primal_clash_market_products.py`.
+- Cardmarket product production merge in `scripts/import/merge_primal_clash_market_products.py`.
+- Cardmarket product source-to-target contract in `docs/import/primal-clash-source-to-target.md`.
 
 ### Changed
 
@@ -76,6 +81,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   and locally validated.
 - Advanced the M3 focus from schema creation to the controlled Primal Clash
   bootstrap and first import path.
+- Completed the `M3 — Data model` exit and advanced the active milestone to `M4 — First import`.
+- Advanced the M4 implementation focus from canonical cards and Cardmarket products to Cardmarket mappings.
+- Documented the source missing-value normalization rule `0000-00-00 00:00:00` → `NULL` for Cardmarket product timestamps.
+- Documented explicit skipped-outcome handling for Online Code Card products outside MVP collection scope.
 
 ### Validated
 
@@ -118,6 +127,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   production mappings, price snapshot integrity, and wishlist isolation.
 - Passed the permanent schema-wide executable validation with
   `schema validation passed`.
+- Validated the controlled Primal Clash canonical-card production import and repeated unchanged merge.
+- Validated Cardmarket product staging with `177` valid rows, `164` normalized missing timestamps, and `13` parsed timestamps per run.
+- Validated complete transaction rollback after an intentional failure following `10` partial Cardmarket product staging inserts.
+- Validated the first Cardmarket product production merge with `173` inserted and `4` skipped Online Code Card outcomes.
+- Validated the repeated Cardmarket product production merge with `173` unchanged and `4` skipped outcomes.
+- Confirmed `173` active production market products, `0` inactive products, `0` duplicate source identities, and `0` Online Code Card products in production.
+- Confirmed `177` reconciled `import_record_outcomes` for each Cardmarket product production run.
 
 ### Security
 
@@ -149,7 +165,7 @@ The following remain planned and are not yet implemented or validated:
 - Raspberry Pi PostgreSQL deployment and persistent SSD storage;
 - NocoDB deployment;
 - Tailscale private access;
-- import pipeline;
+- remaining M4 mapping, edition, variant, price, and final validation work;
 - wishlist workflow;
 - CSV export;
 - backup scheduling;

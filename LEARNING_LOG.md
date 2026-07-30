@@ -426,3 +426,73 @@ or the user-facing wishlist workflow.
 Prepare a controlled Primal Clash bootstrap dataset and execute the first staged
 import path through validation and transactional merge without creating
 uncontrolled duplicates or modifying wishlist-owned data.
+
+---
+
+## 2026-07-30 — Validating staged Cardmarket product imports with real source conditions
+
+#### What I worked on
+
+Implemented and validated the controlled Primal Clash Cardmarket product path from
+`cardmarket-products.json` through `staging_market_products` to
+`market_products`. The work included deterministic normalization, persistent
+staging snapshots, a controlled partial-write rollback test, production merges,
+per-record audit outcomes, and a repeated idempotency run.
+
+#### What I learned
+
+Real source data can expose a normalization rule without exposing a schema
+problem. Cardmarket uses `0000-00-00 00:00:00` as a missing-value sentinel. The
+correct boundary is to normalize it to `NULL` before PostgreSQL timestamp parsing,
+while preserving the original value in `raw_payload`. The existing nullable
+`source_created_at` column already represented this condition correctly.
+
+I also learned that a valid staging record is not automatically an eligible
+production record. The four Online Code Card products are structurally valid and
+remain auditable, but they are outside MVP collection scope. Recording them as
+`skipped` with a controlled reason preserves evidence without polluting production
+catalogue data.
+
+Repeated imports are best validated at several layers: identical artifact
+checksums, independent staging snapshots, production uniqueness, unchanged-record
+detection, and one reconciled audit outcome per source record.
+
+#### What was difficult
+
+The first production merge attempt used the lifecycle value `merging`, while the
+physical schema requires `merge_started`. PostgreSQL rejected the transaction and
+rolled back all status, production, and outcome changes. This was an importer bug,
+not evidence that the schema needed to change.
+
+Timestamp interpretation also has a limitation: the importer treats timezone-naive
+real source timestamps as UTC deterministically, but the fixture alone does not
+prove Cardmarket's original timezone semantics.
+
+#### Decision or change
+
+The Cardmarket product import now uses the lifecycle
+`validated → merge_started → succeeded`. The source timestamp sentinel is
+normalized to `NULL`, Online Code Card products are recorded as explicit skipped
+outcomes, and no schema migration is introduced unless a later import confirms a
+real modelling problem.
+
+The active M4 work now moves to `cardmarket-mappings.json`, while the validated
+product path remains stable.
+
+#### Evidence
+
+- `scripts/import/import_primal_clash_market_products.py`;
+- `scripts/import/fail_import_primal_clash_market_products.py`;
+- `scripts/import/merge_primal_clash_market_products.py`;
+- `docs/import/primal-clash-source-to-target.md`;
+- staging runs `4` and `6`;
+- controlled rollback attempt consuming run sequence value `5`;
+- first merge outcomes: `173` inserted and `4` skipped;
+- repeat merge outcomes: `173` unchanged and `4` skipped;
+- final production state: `173` active products and `0` duplicate source identities.
+
+#### Next experiment
+
+Inspect the controlled Cardmarket mapping fixture and define the exact staging and
+production handling for confirmed mappings, six
+`unmatched_duplicate_candidate` records, and four Online Code Card exclusions.

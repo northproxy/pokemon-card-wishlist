@@ -10,10 +10,11 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
 
 ## Current status
 
-- Current milestone: `M3 — Data model` exit review
+- Current milestone: `M4 — First import`
 - Completed milestones:
   - `M0 — Discovery` completed and validated on 2026-07-27;
-  - `M1 — Repository foundation` completed and validated on 2026-07-27.
+  - `M1 — Repository foundation` completed and validated on 2026-07-27;
+  - `M3 — Data model` implemented and locally validated on 2026-07-29.
 - Database implementation status: Physical PostgreSQL schema implemented and locally validated
   - `21` project tables are implemented through `17` reversible dbmate migrations;
   - `22` tables exist in `public` together with `schema_migrations`;
@@ -25,20 +26,22 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the local development environment includes WSL 2, Docker Desktop, PostgreSQL 17, DBeaver Community, dbmate, and Docker Compose;
   - PostgreSQL is reachable locally only through `127.0.0.1`;
   - Raspberry Pi deployment, NocoDB, Tailscale, persistent SSD deployment, backup, and restore remain planned and unvalidated.
-- Primary focus: Complete the `M3 — Data model` exit review, synchronize documentation, validate the repository, and prepare the controlled Primal Clash first-import path
+- Primary focus: Continue the controlled Primal Clash first import with Cardmarket mappings
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
-- Vertical-slice mapping status: Validated
+- Vertical-slice mapping fixture status: Validated
   - `164` canonical cards are covered;
   - `167` Cardmarket listing variants are mapped through direct `idProduct` evidence;
   - `6` unlisted duplicate-like products are preserved as `unmatched_duplicate_candidate`;
   - `4` Online Code Card products are excluded from MVP catalogue scope;
   - no ambiguous, conflicting, or ordinary unmatched mapping rows remain.
-- Import implementation status: Not started
-  - Primal Clash has not yet been imported into PostgreSQL;
-  - repeat-import behaviour has been defined but not validated on real import runs;
-  - runtime `From` pricing has not been validated on imported data.
-- Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the first import unless database integration exposes a dependency
-- Next milestone: `M4 — First import`
+- Import implementation status: In progress
+  - canonical Primal Clash cards have been imported and repeat-merge idempotency has been validated;
+  - the Cardmarket product path from `cardmarket-products.json` through `staging_market_products` to `market_products` is implemented and validated;
+  - `177` product records are staged per run, `173` eligible products are active in production, and `4` Online Code Card products are recorded as skipped;
+  - repeated Cardmarket product merge produces `173` unchanged and `4` skipped outcomes without duplicates;
+  - Cardmarket mappings, editions, variants, prices, runtime `From` pricing, and the complete M4 validation report remain incomplete.
+- Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the mapping import unless database integration exposes a dependency
+- Next concrete block: `cardmarket-mappings.json` → `staging_market_mappings` → `card_market_product_mappings`
 
 ## Delivery principles
 
@@ -141,7 +144,7 @@ Exit criteria:
 
 ### M3 — Data model
 
-**Status:** Implemented and locally validated; exit review in progress
+**Status:** Completed and locally validated on 2026-07-29
 
 **Goal:** Create the minimum normalised PostgreSQL model.
 
@@ -166,19 +169,28 @@ Exit criteria status:
 
 ### M4 — First import
 
+**Status:** In progress
+
 **Goal:** Import and validate one complete expansion.
 
-Deliverables:
+Completed or validated deliverables:
 
-- one-expansion fixture or dataset;
-- documented source-to-target mapping;
-- import command or script;
-- linked images;
-- duplicate checks;
-- rejected and unmatched record report;
-- missing-image report;
-- import validation report;
-- repeat-import test.
+- controlled Primal Clash fixtures;
+- canonical-card staging and production merge;
+- Cardmarket product source-to-target contract;
+- Cardmarket product staging importer, rollback injector, and production merge script;
+- repeat staging and repeat production merge validation;
+- duplicate prevention and complete per-record audit outcomes;
+- explicit Online Code Card exclusion handling.
+
+Remaining deliverables:
+
+- Cardmarket mapping staging and production mappings;
+- card editions and variants derived from mappings;
+- Cardmarket price staging and snapshots;
+- runtime minimum non-null `avg30` validation;
+- rejected, unmatched, and missing-image reporting for the complete vertical slice;
+- complete M4 import validation report.
 
 Exit criteria:
 
