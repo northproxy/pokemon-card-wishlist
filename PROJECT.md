@@ -26,22 +26,26 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the local development environment includes WSL 2, Docker Desktop, PostgreSQL 17, DBeaver Community, dbmate, and Docker Compose;
   - PostgreSQL is reachable locally only through `127.0.0.1`;
   - Raspberry Pi deployment, NocoDB, Tailscale, persistent SSD deployment, backup, and restore remain planned and unvalidated.
-- Primary focus: Continue the controlled Primal Clash first import with Cardmarket mappings
+- Primary focus: Continue the controlled Primal Clash first import with Cardmarket prices and runtime `From` pricing
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
 - Vertical-slice mapping fixture status: Validated
   - `164` canonical cards are covered;
-  - `167` Cardmarket listing variants are mapped through direct `idProduct` evidence;
+  - `165` Cardmarket products are confirmed at canonical-card scope;
+  - `2` oversized products are preserved as resolved exclusions;
+  - `4` Online Code Card records are preserved as skipped audit outcomes;
   - `6` unlisted duplicate-like products are preserved as `unmatched_duplicate_candidate`;
-  - `4` Online Code Card products are excluded from MVP catalogue scope;
   - no ambiguous, conflicting, or ordinary unmatched mapping rows remain.
 - Import implementation status: In progress
   - canonical Primal Clash cards have been imported and repeat-merge idempotency has been validated;
   - the Cardmarket product path from `cardmarket-products.json` through `staging_market_products` to `market_products` is implemented and validated;
   - `177` product records are staged per run, `173` eligible products are active in production, and `4` Online Code Card products are recorded as skipped;
   - repeated Cardmarket product merge produces `173` unchanged and `4` skipped outcomes without duplicates;
-  - Cardmarket mappings, editions, variants, prices, runtime `From` pricing, and the complete M4 validation report remain incomplete.
-- Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the mapping import unless database integration exposes a dependency
-- Next concrete block: `cardmarket-mappings.json` → `staging_market_mappings` → `card_market_product_mappings`
+  - the Cardmarket mapping path through cases, observations, candidates, status history, and active production mappings is implemented and validated;
+  - the first mapping merge produced `165` inserted mappings and `12` skipped outcomes;
+  - the repeated mapping merge produced `165` unchanged mappings and `12` skipped outcomes without new cases, mappings, or status transitions;
+  - editions, variants, prices, runtime `From` pricing, and the complete M4 validation report remain incomplete.
+- Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the price import unless database integration exposes a dependency
+- Next concrete block: Cardmarket price staging → `market_price_snapshots` → runtime minimum non-null `avg30` validation
 
 ## Delivery principles
 
@@ -181,11 +185,12 @@ Completed or validated deliverables:
 - Cardmarket product staging importer, rollback injector, and production merge script;
 - repeat staging and repeat production merge validation;
 - duplicate prevention and complete per-record audit outcomes;
-- explicit Online Code Card exclusion handling.
+- explicit Online Code Card exclusion handling;
+- Cardmarket mapping staging, transactional rollback, production merge, repeat merge, and audit reconciliation;
+- `173` persistent mapping cases, `165` active card-level mappings, and preserved exclusion and unmatched review states.
 
 Remaining deliverables:
 
-- Cardmarket mapping staging and production mappings;
 - card editions and variants derived from mappings;
 - Cardmarket price staging and snapshots;
 - runtime minimum non-null `avg30` validation;

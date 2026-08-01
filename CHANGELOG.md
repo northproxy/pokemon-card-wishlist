@@ -60,6 +60,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Controlled Cardmarket product rollback injector in `scripts/import/fail_import_primal_clash_market_products.py`.
 - Cardmarket product production merge in `scripts/import/merge_primal_clash_market_products.py`.
 - Cardmarket product source-to-target contract in `docs/import/primal-clash-source-to-target.md`.
+- Cardmarket mapping staging importer and controlled staging rollback utility.
+- Cardmarket mapping pre-merge validator and production-merge rollback utility.
+- Transactional Cardmarket mapping production merge covering mapping cases, observations, selected candidates, status history, active production mappings, and per-record audit outcomes.
+- Cardmarket mapping production merge handoff in `docs/import/m4-cardmarket-mapping-production-merge-handoff.md`.
 
 ### Changed
 
@@ -83,6 +87,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   bootstrap and first import path.
 - Completed the `M3 — Data model` exit and advanced the active milestone to `M4 — First import`.
 - Advanced the M4 implementation focus from canonical cards and Cardmarket products to Cardmarket mappings.
+- Advanced the M4 implementation focus from completed Cardmarket mappings to Cardmarket prices and runtime `From` pricing.
 - Documented the source missing-value normalization rule `0000-00-00 00:00:00` → `NULL` for Cardmarket product timestamps.
 - Documented explicit skipped-outcome handling for Online Code Card products outside MVP collection scope.
 
@@ -134,6 +139,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Validated the repeated Cardmarket product production merge with `173` unchanged and `4` skipped outcomes.
 - Confirmed `173` active production market products, `0` inactive products, `0` duplicate source identities, and `0` Online Code Card products in production.
 - Confirmed `177` reconciled `import_record_outcomes` for each Cardmarket product production run.
+- Validated the current mapping fixture with `165` candidate mappings, `6` exclusions, `6` unmatched duplicate candidates, and `10` candidate rows containing edition codes.
+- Validated complete rollback after an intentional failure following one complete production mapping chain.
+- Validated the first Cardmarket mapping production merge with `165` inserted mappings, `12` skipped outcomes, `173` mapping cases, `173` observations, `165` selected candidates, and `173` status transitions.
+- Validated the repeated Cardmarket mapping production merge with `165` unchanged mappings, `12` skipped outcomes, `0` new cases, `0` new active mappings, and `0` new status transitions.
+- Confirmed final cumulative mapping state of `173` cases, `346` observations, `330` candidates, `173` status-history rows, and `165` active production mappings.
 
 ### Security
 
@@ -165,7 +175,7 @@ The following remain planned and are not yet implemented or validated:
 - Raspberry Pi PostgreSQL deployment and persistent SSD storage;
 - NocoDB deployment;
 - Tailscale private access;
-- remaining M4 mapping, edition, variant, price, and final validation work;
+- remaining M4 edition, variant, price, and final validation work;
 - wishlist workflow;
 - CSV export;
 - backup scheduling;

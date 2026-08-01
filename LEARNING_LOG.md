@@ -496,3 +496,71 @@ product path remains stable.
 Inspect the controlled Cardmarket mapping fixture and define the exact staging and
 production handling for confirmed mappings, six
 `unmatched_duplicate_candidate` records, and four Online Code Card exclusions.
+
+---
+
+## 2026-07-31 — Preserving mapping state and repeated import evidence
+
+#### What I worked on
+
+Implemented and validated the controlled Primal Clash Cardmarket mapping path
+from `staging_market_mappings` through mapping cases, observations, selected
+candidates, status history, and active `card_market_product_mappings`. The work
+included read-only pre-merge reconciliation, intentional transactional rollback,
+a first production merge, and a repeated production merge.
+
+#### What I learned
+
+Idempotency does not mean that every table remains unchanged. Persistent current
+state should remain stable, while event and evidence tables may legitimately grow.
+In the repeated mapping merge, mapping cases, active mappings, and status history
+remained unchanged, but a new observation and selected candidate were stored for
+each eligible repeated source record.
+
+I also learned that source classification and production eligibility are separate.
+The four Online Code Card rows remain valid staged and audited records even though
+they cannot create mapping cases because their products are intentionally absent
+from `market_products`. Oversized and duplicate-like products can create resolved
+review cases without creating active canonical-card mappings.
+
+#### What was difficult
+
+The mapping pipeline spans several tables with different responsibilities and
+constraints. A correct transaction had to create a complete initial chain, update
+the case's source observation, create an active mapping only for confirmed rows,
+and reconcile one outcome for every one of the `177` source records.
+
+The repeat behavior also required a clear distinction between a real state
+transition and supporting evidence. Repeated identical input must not add another
+status transition, but it should remain auditable as a new accepted observation.
+
+#### Decision or change
+
+Candidate rows are confirmed only at canonical-card scope using direct source
+identifier evidence. Edition codes are preserved as evidence but do not
+automatically create editions or variants. Oversized products are resolved as
+`excluded`; duplicate-like products remain
+`unmatched_duplicate_candidate`; Online Code Cards produce skipped outcomes.
+
+The active M4 work now advances to Cardmarket price staging, price snapshots, and
+runtime minimum non-null `avg30` `From` price validation.
+
+#### Evidence
+
+- `scripts/import/validate_primal_clash_market_mapping_merge.py`;
+- `scripts/import/fail_merge_primal_clash_market_mappings.py`;
+- `scripts/import/merge_primal_clash_market_mappings.py`;
+- `docs/import/m4-cardmarket-mapping-production-merge-handoff.md`;
+- first production mapping merge run `10`;
+- repeated production mapping merge run `12`;
+- first merge: `165` inserted mappings and `12` skipped outcomes;
+- repeat merge: `165` unchanged mappings and `12` skipped outcomes;
+- final cumulative state: `173` cases, `346` observations, `330` candidates,
+  `173` status-history rows, and `165` active production mappings;
+- commits `0a1c0a1`, `b99ddb1`, `3c91920`, and `28f4eda`.
+
+#### Next experiment
+
+Inspect the controlled Primal Clash Cardmarket price fixture, define the exact
+staging and snapshot merge contract, and validate the minimum supported non-null
+English or German `avg30` rule for the canonical-card `From` price.

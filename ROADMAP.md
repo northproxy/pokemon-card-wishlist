@@ -13,9 +13,9 @@ It distinguishes planned work from implemented and validated results. Dates are 
 - Database implementation status: Physical PostgreSQL schema implemented and locally validated
 - Infrastructure implementation status: Local development database environment available; Raspberry Pi deployment remains not started
 - Import implementation status: In progress
-- Current block: `cardmarket-mappings.json` → `staging_market_mappings` → `card_market_product_mappings`
+- Current block: Cardmarket price staging → `market_price_snapshots` → runtime `From` price validation
 
-The Primal Clash canonical-card import and Cardmarket product import are implemented and validated. The product fixture contributes `177` valid staging records per run, `173` active production products, and `4` explicit Online Code Card skipped outcomes. Repeat staging and production merges are deterministic and idempotent, with no duplicate source identities. Mapping, edition, variant, price, and final M4 validation work remains incomplete.
+The Primal Clash canonical-card import and Cardmarket product import are implemented and validated. The product fixture contributes `177` valid staging records per run, `173` active production products, and `4` explicit Online Code Card skipped outcomes. Repeat staging and production merges are deterministic and idempotent, with no duplicate source identities. The controlled mapping path is implemented and validated. Edition, variant, price, and final M4 validation work remains incomplete.
 
 ## Release strategy
 
@@ -155,12 +155,13 @@ Completed and validated outcomes:
 - first production merge with `173` inserted and `4` skipped records;
 - repeat production merge with `173` unchanged and `4` skipped records;
 - `173` active production products, no duplicate source identities, and no Online Code Card products in production;
-- one reconciled audit outcome per source record for each production run.
+- one reconciled audit outcome per source record for each production run;
+- controlled Cardmarket mapping staging, rollback, first merge, and repeat merge;
+- `173` mapping cases, `165` active card-level mappings, and preserved exclusion and unmatched review states;
+- repeat mapping evidence with no new cases, active mappings, or status transitions.
 
 Current and remaining outcomes:
 
-- Cardmarket mapping staging and production mappings;
-- controlled handling of confirmed mappings, `unmatched_duplicate_candidate`, and Online Code Card exclusions;
 - card editions and variants derived from validated mappings;
 - Cardmarket price staging and market price snapshots;
 - runtime minimum non-null `avg30` `From` price validation;

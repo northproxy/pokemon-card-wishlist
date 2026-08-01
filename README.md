@@ -12,19 +12,15 @@ The project is also a public learning portfolio. It is intended to demonstrate s
 
 `M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27. `M3 — Data model` was implemented and locally validated on 2026-07-29.
 
-The physical PostgreSQL schema contains `21` project tables implemented through `17` incremental `dbmate` migrations. The controlled Primal Clash import is now in progress. Canonical cards have been imported, and the complete Cardmarket product path from `cardmarket-products.json` through staging to production has been implemented and validated.
+The physical PostgreSQL schema contains `21` project tables implemented through `17` incremental `dbmate` migrations. The controlled Primal Clash import is now in progress. Canonical cards, Cardmarket products, and the complete controlled Cardmarket mapping path from `mapping-review.csv` through staging, review history, and active production mappings have been implemented and validated.
 
-The Cardmarket product fixture contains `177` records. Each persistent staging run stores all `177` as valid records. Production merges classify `173` products as eligible and record the `4` Online Code Card products as skipped and outside MVP collection scope. The first merge inserted `173` products; the repeated merge produced `173` unchanged outcomes, `4` skipped outcomes, and no duplicate source identities.
+The Cardmarket product fixture contains `177` records. Each persistent staging run stores all `177` as valid records. Product merges classify `173` products as eligible and record the `4` Online Code Card products as skipped and outside MVP collection scope. The mapping fixture contains `165` confirmed card-level mappings, `6` excluded records, and `6` `unmatched_duplicate_candidate` records.
 
-The current priority is the next controlled block:
+The first mapping merge created `173` mapping cases, `173` observations, `165` selected candidates, `173` status transitions, and `165` active production mappings. The repeated merge created no new cases, mappings, or status transitions; it recorded `165` unchanged mappings, `173` new observations, `165` new selected candidates, and `12` controlled skipped outcomes.
 
-```text
-cardmarket-mappings.json
-→ staging_market_mappings
-→ card_market_product_mappings
-```
+The current priority is the next controlled M4 block: Cardmarket price staging, price snapshots, and runtime `From` price validation.
 
-Cardmarket mappings, derived editions and variants, market-price snapshots, runtime `From` pricing, the complete import validation report, the application, Raspberry Pi deployment, NocoDB, private access, backup, and restore remain incomplete.
+Derived editions and variants, market-price snapshots, runtime `From` pricing, the complete import validation report, the application, Raspberry Pi deployment, NocoDB, private access, backup, and restore remain incomplete.
 
 The validated vertical slice currently includes:
 
@@ -34,7 +30,9 @@ The validated vertical slice currently includes:
 - `164` canonical cards imported and active;
 - `173` eligible Cardmarket products imported and active;
 - `4` Online Code Card products excluded through explicit skipped outcomes;
-- `167` Cardmarket listing variants represented in the validated mapping fixture;
+- `165` active card-level Cardmarket mappings validated in production;
+- `2` oversized products preserved as resolved exclusions;
+- `4` Online Code Card records preserved through skipped audit outcomes;
 - `6` unlisted products preserved as `unmatched_duplicate_candidate`;
 - no ambiguous, conflicting, or ordinary unmatched mapping rows in the fixture.
 
