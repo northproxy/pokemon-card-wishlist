@@ -64,6 +64,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Cardmarket mapping pre-merge validator and production-merge rollback utility.
 - Transactional Cardmarket mapping production merge covering mapping cases, observations, selected candidates, status history, active production mappings, and per-record audit outcomes.
 - Cardmarket mapping production merge handoff in `docs/import/m4-cardmarket-mapping-production-merge-handoff.md`.
+- Cardmarket price staging importer in `scripts/import/import_primal_clash_market_prices.py`.
+- Controlled Cardmarket price staging rollback utility in `scripts/import/fail_import_primal_clash_market_prices.py`.
+- Append-only Cardmarket price production merge in `scripts/import/merge_primal_clash_market_prices.py`.
+- Controlled Cardmarket price production-merge rollback utility in `scripts/import/fail_merge_primal_clash_market_prices.py`.
+- Permanent runtime canonical-card `From` price validator in `scripts/database/validate_primal_clash_from_prices.sql`.
 
 ### Changed
 
@@ -88,6 +93,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Completed the `M3 — Data model` exit and advanced the active milestone to `M4 — First import`.
 - Advanced the M4 implementation focus from canonical cards and Cardmarket products to Cardmarket mappings.
 - Advanced the M4 implementation focus from completed Cardmarket mappings to Cardmarket prices and runtime `From` pricing.
+- Advanced the M4 focus from completed Cardmarket price implementation to documentation, edition and variant scope resolution, and the final Primal Clash validation report.
+- Extended the Primal Clash source-to-target contract with the validated Cardmarket price staging, append-only snapshot, rollback, repeat-merge, and runtime `MIN(avg30)` rules.
 - Documented the source missing-value normalization rule `0000-00-00 00:00:00` → `NULL` for Cardmarket product timestamps.
 - Documented explicit skipped-outcome handling for Online Code Card products outside MVP collection scope.
 
@@ -144,6 +151,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Validated the first Cardmarket mapping production merge with `165` inserted mappings, `12` skipped outcomes, `173` mapping cases, `173` observations, `165` selected candidates, and `173` status transitions.
 - Validated the repeated Cardmarket mapping production merge with `165` unchanged mappings, `12` skipped outcomes, `0` new cases, `0` new active mappings, and `0` new status transitions.
 - Confirmed final cumulative mapping state of `173` cases, `346` observations, `330` candidates, `173` status-history rows, and `165` active production mappings.
+- Validated Cardmarket price staging with `177` normalized and valid records, `177` non-null `avg30` values, `169` non-null `avg30-holo` values, and `8` records without `avg30-holo`.
+- Validated complete staging rollback after an intentional failure following one partial Cardmarket price staging insert.
+- Validated complete production rollback after an intentional failure following one price snapshot and one audit outcome.
+- Validated the first Cardmarket price production merge with `173` inserted snapshots and `4` skipped Online Code Card outcomes.
+- Validated the repeated Cardmarket price production merge with `0` inserted snapshots, `173` unchanged snapshots, and `4` skipped outcomes.
+- Confirmed final `market_price_snapshots` count of `173` with `0` duplicate `(market_product_id, source_snapshot_at)` identities.
+- Validated runtime canonical-card pricing across `165` active mapped market products and `164` canonical cards.
+- Confirmed the runtime price rule uses the latest eligible successful snapshot per market product and calculates `MIN(avg30)` without using `avg30_holo`.
+- Confirmed the runtime result can be labelled `From` and `30-day average`.
 
 ### Security
 
@@ -175,7 +191,7 @@ The following remain planned and are not yet implemented or validated:
 - Raspberry Pi PostgreSQL deployment and persistent SSD storage;
 - NocoDB deployment;
 - Tailscale private access;
-- remaining M4 edition, variant, price, and final validation work;
+- remaining M4 edition, variant, and final validation-report work;
 - wishlist workflow;
 - CSV export;
 - backup scheduling;

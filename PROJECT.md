@@ -26,7 +26,7 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the local development environment includes WSL 2, Docker Desktop, PostgreSQL 17, DBeaver Community, dbmate, and Docker Compose;
   - PostgreSQL is reachable locally only through `127.0.0.1`;
   - Raspberry Pi deployment, NocoDB, Tailscale, persistent SSD deployment, backup, and restore remain planned and unvalidated.
-- Primary focus: Continue the controlled Primal Clash first import with Cardmarket prices and runtime `From` pricing
+- Primary focus: Complete the remaining controlled Primal Clash M4 work after validating Cardmarket price snapshots and runtime `From` pricing
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
 - Vertical-slice mapping fixture status: Validated
   - `164` canonical cards are covered;
@@ -43,9 +43,13 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the Cardmarket mapping path through cases, observations, candidates, status history, and active production mappings is implemented and validated;
   - the first mapping merge produced `165` inserted mappings and `12` skipped outcomes;
   - the repeated mapping merge produced `165` unchanged mappings and `12` skipped outcomes without new cases, mappings, or status transitions;
-  - editions, variants, prices, runtime `From` pricing, and the complete M4 validation report remain incomplete.
+  - the Cardmarket price path from `cardmarket-prices.json` through `staging_market_prices` to append-only `market_price_snapshots` is implemented and validated;
+  - the first price merge produced `173` inserted snapshots and `4` skipped Online Code Card outcomes;
+  - the repeated price merge produced `173` unchanged snapshots and `4` skipped outcomes without duplicate snapshot identities;
+  - runtime validation confirmed `165` active mapped market products and `164` canonical cards with a minimum non-null `avg30` `From` price;
+  - editions, variants, and the complete M4 validation report remain incomplete.
 - Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the price import unless database integration exposes a dependency
-- Next concrete block: Cardmarket price staging → `market_price_snapshots` → runtime minimum non-null `avg30` validation
+- Next concrete block: Complete M4 documentation, derive or explicitly defer editions and variants, and prepare the complete Primal Clash import validation report
 
 ## Delivery principles
 
@@ -187,14 +191,17 @@ Completed or validated deliverables:
 - duplicate prevention and complete per-record audit outcomes;
 - explicit Online Code Card exclusion handling;
 - Cardmarket mapping staging, transactional rollback, production merge, repeat merge, and audit reconciliation;
-- `173` persistent mapping cases, `165` active card-level mappings, and preserved exclusion and unmatched review states.
+- `173` persistent mapping cases, `165` active card-level mappings, and preserved exclusion and unmatched review states;
+- Cardmarket price staging importer and staging rollback validation;
+- append-only Cardmarket price production merge and production rollback validation;
+- repeated price merge with `173` unchanged snapshots and no duplicate snapshot identities;
+- permanent runtime validator for the minimum non-null `avg30` canonical-card `From` price;
+- validated final price state of `173` snapshots, `165` active mapped products, and `164` priced canonical cards.
 
 Remaining deliverables:
 
-- card editions and variants derived from mappings;
-- Cardmarket price staging and snapshots;
-- runtime minimum non-null `avg30` validation;
-- rejected, unmatched, and missing-image reporting for the complete vertical slice;
+- card editions and variants derived from mappings or explicitly deferred with documented rationale;
+- rejected, unmatched, duplicate, and missing-image reporting for the complete vertical slice;
 - complete M4 import validation report.
 
 Exit criteria:

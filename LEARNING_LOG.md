@@ -26,7 +26,7 @@ Add an entry when at least one of the following occurs:
 
 ## Entry template
 
-### YYYY-MM-DD — Topic
+### YYYY-MM-DD â€” Topic
 
 #### What I worked on
 
@@ -54,7 +54,7 @@ Describe the next small validation step.
 
 ---
 
-## 2026-07-20 — Initial project framing
+## 2026-07-20 â€” Initial project framing
 
 #### What I worked on
 
@@ -87,11 +87,11 @@ Inventory the available source files, inspect the prepared expansion list and im
 
 ---
 
-## 2026-07-25 — Separating canonical cards from marketplace variants
+## 2026-07-25 â€” Separating canonical cards from marketplace variants
 
 #### What I worked on
 
-Compared Cardmarket product and price snapshots with Pokémon TCG Data, Cardmarket entity documentation, a scraped Primal Clash product listing, and a concrete Vulpix Version 1 / Version 2 example.
+Compared Cardmarket product and price snapshots with PokÃ©mon TCG Data, Cardmarket entity documentation, a scraped Primal Clash product listing, and a concrete Vulpix Version 1 / Version 2 example.
 
 #### What I learned
 
@@ -103,7 +103,7 @@ Cardmarket prices belong to market products, so a canonical-card price must be d
 
 The downloadable Cardmarket product file omits collector number, edition labels, language, and finish. Several products can therefore look identical in the reduced snapshot even when the marketplace treats them as different products. Matching by name or attack text alone is not sufficient for every record.
 
-The Pokémon TCG Data repository is a useful structured catalogue source, but its publisher status must not be described as official without separate evidence.
+The PokÃ©mon TCG Data repository is a useful structured catalogue source, but its publisher status must not be described as official without separate evidence.
 
 #### Decision or change
 
@@ -111,7 +111,7 @@ Accepted the following project decisions:
 
 - canonical cards are separate from Cardmarket products;
 - imported entities use source-scoped stable identifiers;
-- the conceptual hierarchy is `canonical card → edition → variant → market product`;
+- the conceptual hierarchy is `canonical card â†’ edition â†’ variant â†’ market product`;
 - initial supported market languages are English and German;
 - code cards and sealed products are excluded from the MVP catalogue;
 - the initial wishlist references the canonical card;
@@ -136,7 +136,7 @@ Complete a reproducible Primal Clash mapping fixture, classify confirmed and amb
 
 ---
 
-## 2026-07-27 — Replacing inferred product order with direct Cardmarket IDs
+## 2026-07-27 â€” Replacing inferred product order with direct Cardmarket IDs
 
 #### What I worked on
 
@@ -210,13 +210,13 @@ dependency before beginning the database schema.
 
 ---
 
-## 2026-07-27 — Turning repository plans into a validated GitHub workflow
+## 2026-07-27 â€” Turning repository plans into a validated GitHub workflow
 
 #### What I worked on
 
 Configured the GitHub Project for `Pokemon Card Wishlist`, created the initial
 M1 issue set, verified the published documentation links, and completed the
-`M1 — Repository foundation` exit review.
+`M1 â€” Repository foundation` exit review.
 
 #### What I learned
 
@@ -244,11 +244,11 @@ GitHub interface.
 
 #### Decision or change
 
-`M1 — Repository foundation` is completed and validated. The GitHub Project is
+`M1 â€” Repository foundation` is completed and validated. The GitHub Project is
 now the operational task-tracking layer, while the repository documents remain
 the source of scope, decisions, milestone criteria, and portfolio evidence.
 
-The current milestone advances to `M2 — Infrastructure`. Infrastructure work
+The current milestone advances to `M2 â€” Infrastructure`. Infrastructure work
 will continue one documented, reversible, and validated action at a time.
 
 #### Evidence
@@ -271,7 +271,7 @@ prepared environment.
 
 ---
 
-## 2026-07-28 — Building a reproducible local PostgreSQL workflow
+## 2026-07-28 â€” Building a reproducible local PostgreSQL workflow
 
 #### What I worked on
 
@@ -352,7 +352,7 @@ output against executable database checks.
 
 ---
 
-## 2026-07-29 — Turning the conceptual model into validated migrations
+## 2026-07-29 â€” Turning the conceptual model into validated migrations
 
 #### What I worked on
 
@@ -429,7 +429,7 @@ uncontrolled duplicates or modifying wishlist-owned data.
 
 ---
 
-## 2026-07-30 — Validating staged Cardmarket product imports with real source conditions
+## 2026-07-30 â€” Validating staged Cardmarket product imports with real source conditions
 
 #### What I worked on
 
@@ -471,7 +471,7 @@ prove Cardmarket's original timezone semantics.
 #### Decision or change
 
 The Cardmarket product import now uses the lifecycle
-`validated → merge_started → succeeded`. The source timestamp sentinel is
+`validated â†’ merge_started â†’ succeeded`. The source timestamp sentinel is
 normalized to `NULL`, Online Code Card products are recorded as explicit skipped
 outcomes, and no schema migration is introduced unless a later import confirms a
 real modelling problem.
@@ -499,7 +499,7 @@ production handling for confirmed mappings, six
 
 ---
 
-## 2026-07-31 — Preserving mapping state and repeated import evidence
+## 2026-07-31 â€” Preserving mapping state and repeated import evidence
 
 #### What I worked on
 
@@ -564,3 +564,86 @@ runtime minimum non-null `avg30` `From` price validation.
 Inspect the controlled Primal Clash Cardmarket price fixture, define the exact
 staging and snapshot merge contract, and validate the minimum supported non-null
 English or German `avg30` rule for the canonical-card `From` price.
+
+---
+
+## 2026-08-03 â€” Validating append-only market price snapshots and runtime aggregation
+
+#### What I worked on
+
+Implemented and validated the controlled Primal Clash Cardmarket price path from
+`cardmarket-prices.json` through `staging_market_prices` to append-only
+`market_price_snapshots`, then validated the runtime canonical-card `From` price.
+
+The work included deterministic normalization, persistent staging, staging
+rollback, production rollback, first and repeated production merges, complete
+per-record audit outcomes, and a permanent SQL validator for the runtime
+aggregation rule.
+
+#### What I learned
+
+Idempotency for append-only snapshot data differs from idempotency for mutable
+current-state data. Reimporting the same source snapshot must not create another
+snapshot row or update the existing row. It should preserve the original
+historical record and classify the repeated source record as `unchanged`.
+
+I also learned that runtime pricing should not read arbitrary snapshot rows
+directly. It must first select the latest eligible snapshot per active market
+product from a successful import run, then aggregate across active canonical-card
+mappings with `MIN(avg30)`.
+
+Audit completeness remains independent from production row creation. All `177`
+source records produced outcomes even though only `173` eligible products created
+or matched production snapshots and `4` Online Code Card records were skipped.
+
+#### What was difficult
+
+The price fixture provides one file-level timestamp rather than a timestamp on
+each record, and it does not contain a currency field. The importer therefore
+needed an explicit controlled contract: apply the normalized file timestamp to
+all rows and assign `EUR` without pretending that the source supplied either
+value per record.
+
+The current fixture also does not exercise the no-price branch because every
+mapped Primal Clash card has at least one non-null `avg30`. The SQL semantics
+support a missing result, but that behaviour is not proven by this fixture alone.
+
+#### Decision or change
+
+Cardmarket price snapshots are now treated as append-only production evidence
+with identity:
+
+```text
+(market_product_id, source_snapshot_at)
+```
+
+An identical repeated snapshot produces `unchanged`; conflicting values for the
+same identity must fail rather than overwrite history.
+
+The runtime canonical-card price is validated as the minimum non-null `avg30`
+from the latest eligible successful snapshot for each active mapped product. The
+result is labelled `From` and `30-day average`, and `avg30_holo` is excluded from
+the MVP formula.
+
+#### Evidence
+
+- `scripts/import/import_primal_clash_market_prices.py`;
+- `scripts/import/fail_import_primal_clash_market_prices.py`;
+- `scripts/import/merge_primal_clash_market_prices.py`;
+- `scripts/import/fail_merge_primal_clash_market_prices.py`;
+- `scripts/database/validate_primal_clash_from_prices.sql`;
+- staging and first production run `13`;
+- repeated staging and production run `15`;
+- first merge: `173` inserted snapshots and `4` skipped outcomes;
+- repeat merge: `173` unchanged snapshots, `0` inserted snapshots, and `4`
+  skipped outcomes;
+- final production state: `173` snapshots and `0` duplicate identities;
+- runtime validation: `165` active mapped products and `164` canonical cards
+  with a `From` price;
+- implementation commit `5b49bda`.
+
+#### Next experiment
+
+Complete the M4 documentation and validation report, then decide whether edition
+and variant derivation belongs in the current milestone or should be explicitly
+deferred without blocking the validated canonical-card price path.

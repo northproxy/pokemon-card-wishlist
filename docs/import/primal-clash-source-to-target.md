@@ -2,7 +2,7 @@
 
 ## Status
 
-Partially implemented and validated.
+Implemented and validated for the controlled Primal Clash canonical-card, Cardmarket product, mapping, and price paths. Edition and variant derivation remains incomplete.
 
 ## Controlled Slice
 
@@ -10,8 +10,8 @@ The first controlled import slice covers canonical Primal Clash card records onl
 
 ```text
 data/fixtures/primal-clash/canonical-cards.json
-→ import_runs
-→ staging_cards
+â†’ import_runs
+â†’ staging_cards
 ```
 
 This slice validates source ingestion, normalization, record-level validation, image-reference extraction, source-count reconciliation, and staging uniqueness.
@@ -43,12 +43,12 @@ The source artifact uses the following envelope:
 
 The importer must reject the complete run before staging when:
 
-* the top-level payload is not a JSON object;
-* `records` is not a JSON array;
-* `recordCount` is not an integer;
-* `recordCount` does not equal the number of elements in `records`;
-* `sourceSystem` is missing or unsupported;
-* `setId` is missing or does not match the controlled import scope.
+- the top-level payload is not a JSON object;
+- `records` is not a JSON array;
+- `recordCount` is not an integer;
+- `recordCount` does not equal the number of elements in `records`;
+- `sourceSystem` is missing or unsupported;
+- `setId` is missing or does not match the controlled import scope.
 
 ## Source-to-Staging Field Mapping
 
@@ -76,20 +76,20 @@ The complete source record must be stored in `raw_payload`.
 
 For the current fixture, this includes fields that are not projected into dedicated staging columns:
 
-* `supertype`;
-* `subtypes`;
-* `hp`;
-* `types`;
-* `evolvesTo`;
-* `attacks`;
-* `weaknesses`;
-* `retreatCost`;
-* `convertedRetreatCost`;
-* `artist`;
-* `flavorText`;
-* `nationalPokedexNumbers`;
-* `legalities`;
-* the complete `images` object.
+- `supertype`;
+- `subtypes`;
+- `hp`;
+- `types`;
+- `evolvesTo`;
+- `attacks`;
+- `weaknesses`;
+- `retreatCost`;
+- `convertedRetreatCost`;
+- `artist`;
+- `flavorText`;
+- `nationalPokedexNumbers`;
+- `legalities`;
+- the complete `images` object.
 
 These fields are preserved as source evidence but are not part of the first production catalogue projection.
 
@@ -122,21 +122,21 @@ The first dry run must not resolve `expansion_id` or write any row to `cards`.
 
 A staged record is valid only when all of the following are true:
 
-* `source_record_reference` is non-empty;
-* `source_system` equals `pokemon_tcg_data`;
-* `source_card_id` is non-empty;
-* `source_expansion_id` equals `xy5`;
-* `collector_number` is non-empty;
-* `name` is non-empty;
-* `raw_payload` is present;
-* `image_small_url` is non-empty;
-* `image_large_url` is non-empty;
-* both image references use HTTPS;
-* both image references use the expected `images.pokemontcg.io` host;
-* `image_small_url` matches the expected `xy5/<collector-number>.png` pattern;
-* `image_large_url` matches the expected `xy5/<collector-number>_hires.png` pattern;
-* no duplicate `(import_run_id, source_record_reference)` exists;
-* no duplicate valid `(import_run_id, source_system, source_card_id)` exists.
+- `source_record_reference` is non-empty;
+- `source_system` equals `pokemon_tcg_data`;
+- `source_card_id` is non-empty;
+- `source_expansion_id` equals `xy5`;
+- `collector_number` is non-empty;
+- `name` is non-empty;
+- `raw_payload` is present;
+- `image_small_url` is non-empty;
+- `image_large_url` is non-empty;
+- both image references use HTTPS;
+- both image references use the expected `images.pokemontcg.io` host;
+- `image_small_url` matches the expected `xy5/<collector-number>.png` pattern;
+- `image_large_url` matches the expected `xy5/<collector-number>_hires.png` pattern;
+- no duplicate `(import_run_id, source_record_reference)` exists;
+- no duplicate valid `(import_run_id, source_system, source_card_id)` exists.
 
 For the validated Primal Clash fixture, the expected result is:
 
@@ -155,44 +155,44 @@ duplicate source card identities: 0
 
 The dry run may modify only:
 
-* `import_runs`;
-* `staging_cards`;
-* rejected-record tables when an actual invalid source record is encountered.
+- `import_runs`;
+- `staging_cards`;
+- rejected-record tables when an actual invalid source record is encountered.
 
 The following tables must have identical row counts before and after the dry run:
 
-* `expansions`;
-* `expansion_source_identifiers`;
-* `cards`;
-* `card_editions`;
-* `card_variants`;
-* `market_products`;
-* `card_market_product_mappings`;
-* `market_price_snapshots`;
-* `card_market_mapping_cases`;
-* `mapping_case_observations`;
-* `mapping_candidates`;
-* `mapping_status_history`;
-* `wishlist_items`;
-* `import_record_outcomes`.
+- `expansions`;
+- `expansion_source_identifiers`;
+- `cards`;
+- `card_editions`;
+- `card_variants`;
+- `market_products`;
+- `card_market_product_mappings`;
+- `market_price_snapshots`;
+- `card_market_mapping_cases`;
+- `mapping_case_observations`;
+- `mapping_candidates`;
+- `mapping_status_history`;
+- `wishlist_items`;
+- `import_record_outcomes`.
 
 ## First Dry-Run Acceptance Criteria
 
 The first controlled slice is accepted when:
 
-* exactly one catalogue import run is created;
-* the run scope identifies `pokemon_tcg_data:xy5`;
-* the importer reads exactly `164` source records;
-* exactly `164` rows are inserted into `staging_cards`;
-* every source record is represented once;
-* all staging rows belong to the same import run;
-* all `164` records reach a valid terminal validation state;
-* no staging row remains in `pending` normalization or validation state;
-* no rejected source records are created;
-* all image references are present and valid;
-* run-level counts reconcile with staging and rejection counts;
-* no production, market, mapping, price, or wishlist table changes;
-* the existing permanent Primal Clash fixture validator continues to pass.
+- exactly one catalogue import run is created;
+- the run scope identifies `pokemon_tcg_data:xy5`;
+- the importer reads exactly `164` source records;
+- exactly `164` rows are inserted into `staging_cards`;
+- every source record is represented once;
+- all staging rows belong to the same import run;
+- all `164` records reach a valid terminal validation state;
+- no staging row remains in `pending` normalization or validation state;
+- no rejected source records are created;
+- all image references are present and valid;
+- run-level counts reconcile with staging and rejection counts;
+- no production, market, mapping, price, or wishlist table changes;
+- the existing permanent Primal Clash fixture validator continues to pass.
 
 ## Source artifact
 
@@ -220,8 +220,8 @@ The controlled dry-run lifecycle is:
 
 ```text
 created
-→ staging_loaded
-→ validated
+â†’ staging_loaded
+â†’ validated
 ```
 
 The importer must update lifecycle timestamps consistently:
@@ -261,11 +261,11 @@ validation_failed
 
 A failed validation run must:
 
-* populate `failure_code`;
-* optionally populate `failure_detail`;
-* populate `completed_at`;
-* never populate `merge_started_at`;
-* never modify production tables.
+- populate `failure_code`;
+- optionally populate `failure_detail`;
+- populate `completed_at`;
+- never populate `merge_started_at`;
+- never modify production tables.
 
 ## Staging State Contract
 
@@ -323,9 +323,9 @@ The controlled staging path is:
 
 ```text
 cardmarket-products.json
-→ validation and normalization
-→ staging_market_products
-→ validated staging run
+â†’ validation and normalization
+â†’ staging_market_products
+â†’ validated staging run
 ```
 
 The fixture contains exactly `177` Cardmarket product records.
@@ -622,4 +622,463 @@ The later production merge will project eligible staging values as follows:
 
 `market_products.expansion_id` is not copied from the source fixture. It must be resolved through the existing internal Primal Clash expansion associated with Cardmarket expansion identifier `1585`.
 
-The production merge, audit outcomes, repeated-import behaviour, and production rollback validation remain outside this staging importer implementation block.
+The Cardmarket product production merge is implemented and validated.
+
+Validated results:
+
+- first merge: `173` inserted market products and `4` skipped Online Code Card records;
+- repeated merge: `173` unchanged market products and `4` skipped Online Code Card records;
+- final active production products: `173`;
+- duplicate production source identities: `0`;
+- Online Code Card products in production: `0`;
+- one reconciled `import_record_outcomes` row per source record and production run.
+
+## Cardmarket Price Import
+
+### Controlled Source Artifact
+
+The controlled Cardmarket price path uses:
+
+```text
+data/fixtures/primal-clash/cardmarket-prices.json
+```
+
+The implemented and validated pipeline is:
+
+```text
+cardmarket-prices.json
+â†’ validation and normalization
+â†’ staging_market_prices
+â†’ market_price_snapshots
+â†’ runtime canonical-card From price
+```
+
+The fixture was prepared from:
+
+```text
+price_guide_6.json
+```
+
+The fixture envelope contains:
+
+| Source field | Expected value or role |
+| --- | --- |
+| `sourceFile` | Original source artifact reference |
+| `sourceSystem` | Controlled value `cardmarket` |
+| `sourceCreatedAt` | File-level source snapshot timestamp |
+| `expansionId` | Controlled Cardmarket expansion identifier `1585` |
+| `recordCount` | Declared source record count |
+| `records` | Cardmarket price source records |
+
+The validated fixture metadata is:
+
+```text
+sourceFile = price_guide_6.json
+sourceSystem = cardmarket
+sourceCreatedAt = 2026-07-26T02:44:32+0200
+expansionId = 1585
+recordCount = 177
+```
+
+The normalized UTC source snapshot timestamp is:
+
+```text
+2026-07-26T00:44:32+00:00
+```
+
+All `177` records share this file-level source snapshot timestamp.
+
+### Source Fields and Controlled Currency
+
+Each source record contains:
+
+| Source field | Role |
+| --- | --- |
+| `idProduct` | Cardmarket product identifier |
+| `avg30` | Cardmarket 30-day average |
+| `avg30-holo` | Additional Cardmarket holo 30-day average when present |
+
+The fixture does not contain a currency field. The controlled import contract assigns:
+
+```text
+currency_code = EUR
+```
+
+This assignment is specific to the validated Cardmarket fixture contract and must not be inferred for unrelated sources.
+
+Validated value distribution:
+
+```text
+source records: 177
+records with avg30: 177
+records with avg30-holo: 169
+records without avg30-holo: 8
+```
+
+### Source-to-Staging Field Mapping
+
+| Source value | Normalization rule | `staging_market_prices` target | Required for valid record |
+| --- | --- | --- | ---: |
+| Import context | Use the current `import_runs.import_run_id` | `import_run_id` | Yes |
+| `idProduct` plus stable artifact context | Build `cardmarket-prices.json#idProduct=<id>` | `source_record_reference` | Yes |
+| Import contract | Use controlled value `cardmarket` | `source_system` | Yes |
+| `idProduct` | Convert to trimmed non-empty text | `source_product_id` | Yes |
+| Top-level `sourceCreatedAt` | Parse as timezone-aware timestamp and normalize to UTC | `source_snapshot_at` | Yes |
+| Import contract | Use controlled value `EUR` | `currency_code` | Yes |
+| `avg30` source value | Preserve a deterministic text representation | `avg30_raw` | Yes for this fixture |
+| `avg30` source value | Parse as non-negative `numeric(12,4)` | `avg30` | Yes for this fixture |
+| `avg30-holo` source value | Preserve a deterministic text representation or `NULL` | `avg30_holo_raw` | No |
+| `avg30-holo` source value | Parse as non-negative `numeric(12,4)` or `NULL` | `avg30_holo` | No |
+| Complete source object | Preserve without dropping fields | `raw_payload` | Yes |
+| Normalized source record | Calculate deterministic SHA-256 from canonical JSON | `record_checksum` | Yes |
+| Importer state | Set after normalization completes | `normalization_status` | Yes |
+| Validator state | Set after validation completes | `validation_status` | Yes |
+| Validation completion time | Populate for the terminal validation state | `validation_completed_at` | Yes |
+
+The staging identity is:
+
+```text
+(import_run_id, source_record_reference)
+```
+
+Within one import run:
+
+- every source record must be represented exactly once;
+- each `source_record_reference` must be unique;
+- each `source_product_id` must be unique;
+- raw and normalized values must both remain available;
+- no invalid or out-of-scope record may disappear silently.
+
+### Fixture and Record Validation
+
+The complete fixture must fail before staging when:
+
+- the top-level payload is not a JSON object;
+- `records` is not a JSON array;
+- `recordCount` is not an integer;
+- `recordCount` does not equal the number of records;
+- `recordCount` is not `177`;
+- `sourceSystem` is not `cardmarket`;
+- `expansionId` is not `1585`;
+- `sourceCreatedAt` is missing or cannot be parsed deterministically;
+- duplicate `idProduct` values exist.
+
+A normalized record is valid only when:
+
+- `source_record_reference` is non-empty;
+- `source_system` equals `cardmarket`;
+- `source_product_id` is non-empty;
+- `source_snapshot_at` is present;
+- `currency_code` equals `EUR`;
+- `avg30` and `avg30_holo`, when present, are non-negative;
+- at least one normalized price value is non-null;
+- normalized values fit `numeric(12,4)`;
+- `raw_payload` is present;
+- `record_checksum` is present;
+- normalization and validation reach terminal states.
+
+The validated fixture produced:
+
+```text
+normalized records: 177
+valid records: 177
+rejected records: 0
+duplicate source_product_id values: 0
+```
+
+### Price Staging Import Run Contract
+
+The permanent staging importer is:
+
+```text
+scripts/import/import_primal_clash_market_prices.py
+```
+
+It creates an `import_runs` record with the controlled values:
+
+| Column | Value |
+| --- | --- |
+| `run_kind` | `market_prices` |
+| `source_system` | `cardmarket` |
+| `source_entity_type` | `market_price` |
+| `source_artifact_reference` | `data/fixtures/primal-clash/cardmarket-prices.json` |
+| `scope_type` | `expansion` |
+| `scope_reference` | `cardmarket:1585` |
+| `is_authoritative` | `true` |
+| Initial `status` | `created` |
+
+The staging lifecycle is:
+
+```text
+created
+â†’ staging_loaded
+â†’ validated
+```
+
+A successful staging run must contain:
+
+```text
+total_source_records = 177
+valid_source_records = 177
+rejected_records = 0
+staging_market_prices rows = 177
+merge_started_at IS NULL
+completed_at IS NULL
+```
+
+The staging importer must not write:
+
+- `market_price_snapshots`;
+- `import_record_outcomes`;
+- `market_products`;
+- `card_market_product_mappings`;
+- catalogue hierarchy tables;
+- `wishlist_items`.
+
+Validated staging runs:
+
+```text
+13  primal-clash-market-prices-dry-run-001
+15  primal-clash-market-prices-dry-run-002
+```
+
+Each run staged `177` valid rows with `0` rejected records.
+
+### Staging Transactional Rollback
+
+The permanent failure-injection utility is:
+
+```text
+scripts/import/fail_import_primal_clash_market_prices.py
+```
+
+It creates an import run and one staged record inside a transaction, raises an intentional exception, and verifies rollback through a new database connection.
+
+Validated rollback evidence:
+
+```text
+attempted import run ID: 14
+attempted staged records: 1
+surviving matching import runs: 0
+final committed staging row count: 177
+```
+
+A consumed PostgreSQL sequence value is acceptable and does not indicate that a row survived rollback.
+
+### Staging-to-Production Projection
+
+The permanent production merge utility is:
+
+```text
+scripts/import/merge_primal_clash_market_prices.py
+```
+
+Eligible staging rows project as follows:
+
+| `staging_market_prices` source | `market_price_snapshots` target |
+| --- | --- |
+| Resolved `source_product_id` | `market_product_id` |
+| `import_run_id` | `import_run_id` |
+| `source_snapshot_at` | `source_snapshot_at` |
+| `currency_code` | `currency_code` |
+| `avg30` | `avg30` |
+| `avg30_holo` | `avg30_holo` |
+| `source_record_reference` | `source_reference` |
+
+The merge must resolve the existing production product through:
+
+```text
+market_products.source_system = cardmarket
+market_products.source_product_id = staging_market_prices.source_product_id
+```
+
+An eligible record must resolve to an active Primal Clash production product.
+
+The production snapshot identity is:
+
+```text
+(market_product_id, source_snapshot_at)
+```
+
+`market_price_snapshots` is append-only:
+
+- a new identity creates an `inserted` snapshot;
+- an identical existing identity and values produces an `unchanged` outcome;
+- an existing identity with conflicting values must fail the controlled merge;
+- an existing historical snapshot must never be updated or deleted.
+
+### Out-of-Scope Price Records
+
+The price fixture contains records for the same four Online Code Card product identities excluded from `market_products`:
+
+```text
+300914
+300919
+300971
+300972
+```
+
+These records are valid source records and remain present in `staging_market_prices`.
+
+During production merge they must produce:
+
+```text
+entity_type = market_price_snapshot
+source_system = cardmarket
+source_entity_id = source_product_id
+production_entity_id = NULL
+outcome_type = skipped
+reason_code = online_code_card_out_of_scope
+```
+
+They must not create:
+
+- `market_products`;
+- `market_price_snapshots`;
+- canonical-card mappings;
+- runtime canonical-card prices.
+
+The two oversized mapped-source exclusions and six `unmatched_duplicate_candidate` products remain active market products with imported snapshots when they are eligible production products. They do not affect canonical-card runtime prices because they do not have active canonical-card mappings.
+
+### Production Merge Lifecycle and Audit Contract
+
+The production lifecycle is:
+
+```text
+validated
+â†’ merge_started
+â†’ succeeded
+```
+
+The complete merge runs inside one PostgreSQL transaction.
+
+Each of the `177` staged source records must produce exactly one `import_record_outcomes` row:
+
+- `inserted` for a newly stored production snapshot;
+- `unchanged` for an identical existing production snapshot;
+- `skipped` for a controlled out-of-scope Online Code Card record;
+- controlled failure rather than silent overwrite for a conflicting existing snapshot identity.
+
+Run summary counts must reconcile with all `177` source records.
+
+### Production Merge Transactional Rollback
+
+The permanent failure-injection utility is:
+
+```text
+scripts/import/fail_merge_primal_clash_market_prices.py
+```
+
+It transitions a validated run to `merge_started`, inserts one production snapshot and one audit outcome inside a transaction, raises an intentional exception, and verifies complete rollback through a new connection.
+
+Validated rollback evidence for run `13`:
+
+```text
+attempted source product ID: 273532
+attempted price snapshot ID: 1
+surviving price snapshots: 0
+surviving run outcomes: 0
+final import run status: validated
+```
+
+The run's `merge_started_at` and `completed_at` values remained `NULL`.
+
+### First and Repeated Production Merge Results
+
+First production merge:
+
+```text
+import run ID: 13
+run reference: primal-clash-market-prices-dry-run-001
+inserted snapshots: 173
+unchanged snapshots: 0
+skipped Online Code Card records: 4
+processed source records: 177
+final status: succeeded
+```
+
+Repeated production merge of the identical fixture and source snapshot:
+
+```text
+import run ID: 15
+run reference: primal-clash-market-prices-dry-run-002
+inserted snapshots: 0
+unchanged snapshots: 173
+skipped Online Code Card records: 4
+processed source records: 177
+final status: succeeded
+```
+
+Final production state:
+
+```text
+market_price_snapshots: 173
+duplicate snapshot identities: 0
+```
+
+The repeated import preserves the original snapshots and records unchanged outcomes without creating duplicate production rows.
+
+### Runtime Canonical-Card From Price
+
+The permanent validator is:
+
+```text
+scripts/database/validate_primal_clash_from_prices.sql
+```
+
+The runtime rule is defined by `ADR-011` and `FR-12`.
+
+For each active market product, select its latest eligible snapshot from a successful import run. Then calculate one canonical-card value from active canonical-card mappings:
+
+```sql
+MIN(avg30)
+```
+
+Runtime eligibility requires:
+
+- an active `card_market_product_mappings` row;
+- an active canonical `cards` row;
+- an active Cardmarket `market_products` row;
+- a snapshot linked to an `import_runs.status = 'succeeded'` run;
+- `currency_code = 'EUR'`;
+- non-null `avg30`.
+
+The initial MVP formula must not use `avg30_holo`.
+
+The result is informational and must be labelled:
+
+```text
+display prefix: From
+display label: 30-day average
+```
+
+Validated runtime result:
+
+```text
+Primal Clash runtime From price validation passed
+Price snapshots: 173
+Active mapped market products: 165
+Canonical cards with From prices: 164
+```
+
+Representative results:
+
+```text
+xy5-1  Weedle    From EUR 0.1400
+xy5-2  Kakuna    From EUR 0.1800
+xy5-3  Beedrill  From EUR 0.7500
+xy5-8  Sceptile  From EUR 2.6900
+xy5-9  Sceptile  From EUR 10.2200
+```
+
+The canonical-card query returns no price when no eligible non-null `avg30` exists. Every mapped canonical card in the current fixture has at least one eligible non-null `avg30`, so the no-price branch is defined by query semantics but is not represented by this fixture.
+
+### Known Limitations
+
+- The fixture provides one file-level source snapshot timestamp for all `177` records.
+- The fixture does not provide currency; the controlled contract assigns `EUR`.
+- The fixture contains `avg30-holo`, but the MVP runtime formula excludes it.
+- Imported Cardmarket values are informational snapshots, not real-time prices or purchase quotes.
+- Language, edition, and finish must not be inferred from price values.
+- Edition and variant creation remains a separate M4 work block.
+- The current fixture does not exercise the runtime no-price branch.
