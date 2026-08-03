@@ -93,7 +93,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Completed the `M3 — Data model` exit and advanced the active milestone to `M4 — First import`.
 - Advanced the M4 implementation focus from canonical cards and Cardmarket products to Cardmarket mappings.
 - Advanced the M4 implementation focus from completed Cardmarket mappings to Cardmarket prices and runtime `From` pricing.
-- Advanced the M4 focus from completed Cardmarket price implementation to documentation, edition and variant scope resolution, and the final Primal Clash validation report.
+- Advanced the M4 focus from completed Cardmarket price implementation to edition and variant scope resolution and the final Primal Clash validation report.
+- Accepted `ADR-013`, deferring automatic edition and variant derivation until controlled evidence proves edition identity, language, and finish.
+- Advanced the remaining M4 focus to the consolidated Primal Clash import validation report and exit review.
 - Extended the Primal Clash source-to-target contract with the validated Cardmarket price staging, append-only snapshot, rollback, repeat-merge, and runtime `MIN(avg30)` rules.
 - Documented the source missing-value normalization rule `0000-00-00 00:00:00` → `NULL` for Cardmarket product timestamps.
 - Documented explicit skipped-outcome handling for Online Code Card products outside MVP collection scope.
@@ -146,7 +148,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Validated the repeated Cardmarket product production merge with `173` unchanged and `4` skipped outcomes.
 - Confirmed `173` active production market products, `0` inactive products, `0` duplicate source identities, and `0` Online Code Card products in production.
 - Confirmed `177` reconciled `import_record_outcomes` for each Cardmarket product production run.
-- Validated the current mapping fixture with `165` candidate mappings, `6` exclusions, `6` unmatched duplicate candidates, and `10` candidate rows containing edition codes.
+- Validated the current mapping fixture with `165` candidate mappings, `6` exclusions, and `6` unmatched duplicate candidates.
+- Reviewed `12` rows containing edition codes: `10` candidate mappings supported only at card scope and `2` excluded oversized products.
+- Confirmed `0` candidate mappings at edition scope and `0` at variant scope.
+- Confirmed `card_editions = 0` and `card_variants = 0` as the controlled M4 production state.
+- Confirmed the deferral leaves `165` active mappings, `173` price snapshots, and runtime `From` prices for `164` canonical cards unchanged.
 - Validated complete rollback after an intentional failure following one complete production mapping chain.
 - Validated the first Cardmarket mapping production merge with `165` inserted mappings, `12` skipped outcomes, `173` mapping cases, `173` observations, `165` selected candidates, and `173` status transitions.
 - Validated the repeated Cardmarket mapping production merge with `165` unchanged mappings, `12` skipped outcomes, `0` new cases, `0` new active mappings, and `0` new status transitions.
@@ -191,7 +197,8 @@ The following remain planned and are not yet implemented or validated:
 - Raspberry Pi PostgreSQL deployment and persistent SSD storage;
 - NocoDB deployment;
 - Tailscale private access;
-- remaining M4 edition, variant, and final validation-report work;
+- remaining M4 consolidated validation-report and exit-review work;
+- controlled edition and variant classification and backfill;
 - wishlist workflow;
 - CSV export;
 - backup scheduling;

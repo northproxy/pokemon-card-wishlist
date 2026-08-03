@@ -20,9 +20,9 @@ The first mapping merge created `173` mapping cases, `173` observations, `165` s
 
 The first price merge created `173` append-only `market_price_snapshots` and recorded `4` skipped Online Code Card outcomes. Repeating the same source snapshot created `0` new snapshots and classified all `173` eligible records as unchanged. Runtime validation confirmed `165` active mapped market products and `164` canonical cards with an informational minimum non-null `avg30` value labelled `From` and `30-day average`.
 
-The current priority is to complete the M4 documentation and remaining vertical-slice work.
+The current priority is to prepare the consolidated Primal Clash import validation report and complete the M4 exit review.
 
-Derived editions and variants, the complete M4 import validation report, the application, Raspberry Pi deployment, NocoDB, private access, backup, and restore remain incomplete.
+`ADR-013` is accepted: automatic edition and variant derivation is deferred because the current evidence proves only canonical-card-level mappings. The Primal Clash production state therefore intentionally contains `0` `card_editions` and `0` `card_variants`, while retaining `165` active mappings and validated runtime prices for all `164` canonical cards. The complete M4 import validation report, the application, Raspberry Pi deployment, NocoDB, private access, backup, and restore remain incomplete.
 
 The validated vertical slice currently includes:
 

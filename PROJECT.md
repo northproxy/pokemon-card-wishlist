@@ -26,7 +26,7 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the local development environment includes WSL 2, Docker Desktop, PostgreSQL 17, DBeaver Community, dbmate, and Docker Compose;
   - PostgreSQL is reachable locally only through `127.0.0.1`;
   - Raspberry Pi deployment, NocoDB, Tailscale, persistent SSD deployment, backup, and restore remain planned and unvalidated.
-- Primary focus: Complete the remaining controlled Primal Clash M4 work after validating Cardmarket price snapshots and runtime `From` pricing
+- Primary focus: Complete the consolidated Primal Clash import validation report and M4 exit review after accepting the edition and variant derivation deferral
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
 - Vertical-slice mapping fixture status: Validated
   - `164` canonical cards are covered;
@@ -47,9 +47,11 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the first price merge produced `173` inserted snapshots and `4` skipped Online Code Card outcomes;
   - the repeated price merge produced `173` unchanged snapshots and `4` skipped outcomes without duplicate snapshot identities;
   - runtime validation confirmed `165` active mapped market products and `164` canonical cards with a minimum non-null `avg30` `From` price;
-  - editions, variants, and the complete M4 validation report remain incomplete.
+  - `ADR-013` is accepted: automatic edition and variant derivation is deferred because the current evidence supports only card-level mappings;
+  - `card_editions` and `card_variants` remain empty by design for the Primal Clash vertical slice;
+  - the complete M4 validation report remains incomplete.
 - Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the price import unless database integration exposes a dependency
-- Next concrete block: Complete M4 documentation, derive or explicitly defer editions and variants, and prepare the complete Primal Clash import validation report
+- Next concrete block: Prepare the complete Primal Clash import validation report and perform the M4 exit review
 
 ## Delivery principles
 
@@ -200,7 +202,7 @@ Completed or validated deliverables:
 
 Remaining deliverables:
 
-- card editions and variants derived from mappings or explicitly deferred with documented rationale;
+- automatic card-edition and card-variant derivation explicitly deferred through accepted `ADR-013`, with card-level evidence and production counts validated;
 - rejected, unmatched, duplicate, and missing-image reporting for the complete vertical slice;
 - complete M4 import validation report.
 

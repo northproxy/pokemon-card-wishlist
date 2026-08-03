@@ -13,9 +13,9 @@ It distinguishes planned work from implemented and validated results. Dates are 
 - Database implementation status: Physical PostgreSQL schema implemented and locally validated
 - Infrastructure implementation status: Local development database environment available; Raspberry Pi deployment remains not started
 - Import implementation status: In progress
-- Current block: Complete M4 documentation, resolve edition and variant scope, and prepare the final Primal Clash import validation report
+- Current block: Prepare the final Primal Clash import validation report and complete the M4 exit review
 
-The Primal Clash canonical-card, Cardmarket product, mapping, and price paths are implemented and validated. The product fixture contributes `177` valid staging records per run, `173` active production products, and `4` explicit Online Code Card skipped outcomes. The controlled mapping path preserves `173` cases and `165` active canonical-card mappings. The price path stores `173` append-only snapshots, produces `173` unchanged outcomes on repeat merge, and validates runtime `From` prices for all `164` canonical cards. Edition, variant, and final M4 validation-report work remains incomplete.
+The Primal Clash canonical-card, Cardmarket product, mapping, and price paths are implemented and validated. The product fixture contributes `177` valid staging records per run, `173` active production products, and `4` explicit Online Code Card skipped outcomes. The controlled mapping path preserves `173` cases and `165` active canonical-card mappings. The price path stores `173` append-only snapshots, produces `173` unchanged outcomes on repeat merge, and validates runtime `From` prices for all `164` canonical cards. Automatic edition and variant derivation has been explicitly deferred through accepted `ADR-013`; the final M4 validation report and exit review remain incomplete.
 
 ## Release strategy
 
@@ -169,7 +169,7 @@ Completed and validated outcomes:
 
 Current and remaining outcomes:
 
-- card editions and variants derived from validated mappings or explicitly deferred with documented rationale;
+- automatic edition and variant derivation explicitly deferred through accepted `ADR-013`, with `0` production editions, `0` production variants, and unchanged card-level mappings and runtime pricing;
 - complete rejected, unmatched, duplicate, and missing-image evidence;
 - complete M4 import validation report and exit review.
 

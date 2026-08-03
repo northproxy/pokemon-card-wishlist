@@ -2001,6 +2001,238 @@ For the Primal Clash vertical slice:
 
 ---
 
-## Planned ADRs
+---
 
-No additional ADRs are currently scheduled.
+## ADR-013 — Defer automatic edition and variant derivation
+
+- Status: Accepted
+- Date: 2026-08-03
+- Owners: Project owner
+- Supersedes: N/A
+
+#### Context
+
+The accepted catalogue hierarchy is:
+
+```text
+canonical card
+→ edition
+→ language and finish variant
+→ market product
+→ price snapshot
+```
+
+The physical PostgreSQL schema already contains:
+
+- `cards`;
+- `card_editions`;
+- `card_variants`;
+- `market_products`;
+- `card_market_product_mappings`;
+- `market_price_snapshots`.
+
+The controlled Primal Clash import validates Cardmarket mappings at
+canonical-card scope.
+
+The validated mapping result contains:
+
+- `164` canonical cards;
+- `165` confirmed active card-level mappings;
+- `2` oversized products preserved as resolved exclusions;
+- `4` Online Code Card records preserved as skipped outcomes;
+- `6` products preserved as `unmatched_duplicate_candidate`;
+- `12` rows containing Cardmarket edition codes, comprising `10` candidate
+  mappings and `2` excluded oversized products.
+
+Review of the `10` candidate rows confirmed that collector-number matching and
+direct Cardmarket `idProduct` evidence prove only:
+
+```text
+canonical card → Cardmarket product
+```
+
+The available source evidence does not provide complete and reliable
+classification for:
+
+- edition identity;
+- language;
+- finish;
+- the relationship between Cardmarket edition codes and physical card
+  editions;
+- default edition semantics for mappings without an edition code.
+
+The `V1` and `V2` values are not sufficiently consistent to serve as automatic
+catalogue edition identities. They occur across multiple Cardmarket products for
+one canonical card, across separate canonical cards with different collector
+numbers, and on excluded oversized products.
+
+Creating `card_editions` or `card_variants` from this incomplete evidence would
+require project-generated assumptions.
+
+The existing mapping pipeline preserves edition codes, listing references, raw
+payloads, and mapping observations without using them to infer unsupported
+catalogue entities.
+
+The runtime canonical-card informational price path is implemented and validated
+without populated `card_editions` or `card_variants`:
+
+```text
+canonical card
+→ active canonical-card mapping
+→ active Cardmarket market product
+→ latest eligible successful price snapshot
+→ MIN(avg30)
+```
+
+#### Decision
+
+Defer automatic population of `card_editions` and `card_variants`.
+
+The Primal Clash M4 import continues to create and validate mappings at
+canonical-card scope.
+
+The following rules apply:
+
+1. A confirmed canonical-card mapping does not automatically create a
+   `card_editions` record.
+2. An edition code preserved in mapping evidence does not automatically prove a
+   complete catalogue edition identity.
+3. A `card_editions` record may be created only when controlled evidence proves:
+   - the parent canonical card;
+   - a stable edition identity;
+   - the source or project rule that defines the edition;
+   - any required source identifier or controlled project-generated identifier.
+4. A `card_variants` record may be created only when controlled evidence proves:
+   - the parent edition;
+   - language;
+   - finish;
+   - the distinction from other variants of the same edition.
+5. Missing edition, language, or finish values must not be replaced with guessed
+   values such as `default`, `en`, `normal`, or `unknown` merely to populate the
+   hierarchy.
+6. Available Cardmarket edition codes, listing references, raw payloads, and
+   mapping observations remain preserved as evidence.
+7. Existing canonical-card-level mappings remain valid and active.
+8. Existing runtime canonical-card `From` pricing remains valid.
+9. Empty `card_editions` and `card_variants` tables for the current vertical
+   slice are a documented limitation, not an import failure.
+10. Edition- and variant-specific wishlist selection remains deferred as already
+    defined by the MVP boundary.
+
+#### Alternatives considered
+
+##### Create default editions and variants automatically
+
+Rejected because it would invent edition, language, and finish values that the
+source does not prove.
+
+##### Create editions only for mappings containing edition codes
+
+Rejected for M4 because `V1` and `V2` do not provide a consistently validated
+physical edition identity, human-readable edition name, language, or finish.
+
+##### Defer automatic edition and variant derivation
+
+Accepted because it preserves the validated canonical-card mappings and price
+path while keeping source uncertainty explicit and reviewable.
+
+#### Confirmation scopes
+
+##### Card scope
+
+Evidence proves only:
+
+```text
+canonical card → market product
+```
+
+Allowed production result:
+
+- an active canonical-card mapping.
+
+Not allowed:
+
+- automatic edition creation;
+- automatic variant creation.
+
+##### Edition scope
+
+Evidence proves:
+
+```text
+canonical card → edition → market product
+```
+
+Allowed production result:
+
+- a controlled `card_editions` record;
+- an edition-scoped relationship where supported by the schema and import
+  contract.
+
+Language or finish variants still require additional evidence.
+
+##### Variant scope
+
+Evidence proves:
+
+```text
+canonical card
+→ edition
+→ language and finish variant
+→ market product
+```
+
+Allowed production result:
+
+- a controlled `card_editions` record;
+- a controlled `card_variants` record;
+- a market-product relationship at variant scope.
+
+#### Consequences
+
+Positive:
+
+- The project avoids publishing guessed catalogue metadata.
+- Current M4 import evidence remains valid.
+- The canonical-card price path remains available.
+- Source ambiguity remains reviewable.
+- The normalized hierarchy remains ready for future controlled enrichment.
+
+Negative:
+
+- Edition and variant catalogue views cannot yet be validated.
+- English and German filtering is not yet available from production variant
+  rows.
+- Finish-specific filtering is not yet available.
+- CSV export cannot yet reliably include edition, language, or finish values for
+  the complete vertical slice.
+- A separate classification source or controlled review process is required.
+
+#### Validation
+
+The decision was validated on 2026-08-03 with the following evidence:
+
+- `12` mapping rows contain non-null edition codes;
+- `10` are candidate mappings confirmed only at card scope;
+- `2` are excluded oversized products;
+- candidate mappings confirmed at edition scope: `0`;
+- candidate mappings confirmed at variant scope: `0`;
+- `card_editions`: `0`;
+- `card_variants`: `0`;
+- active `card_market_product_mappings`: `165`;
+- `market_price_snapshots`: `173`;
+- canonical cards with a runtime `From` price: `164`;
+- permanent runtime validator result:
+  `Primal Clash runtime From price validation passed`.
+
+The empty edition and variant tables therefore do not affect the validated
+canonical-card mappings or runtime pricing path.
+
+#### Follow-up
+
+- Record the decision and validation evidence in the M4 validation report.
+- Keep the current M4 production mappings at card scope.
+- Create a later controlled classification task covering edition identity,
+  language, finish, backfill, conflict handling, and repeated-import behaviour.
+- Complete this follow-up before claiming full production support for English
+  and German market variants or edition- and variant-based filtering and export.

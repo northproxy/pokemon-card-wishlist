@@ -26,7 +26,7 @@ Add an entry when at least one of the following occurs:
 
 ## Entry template
 
-### YYYY-MM-DD â€” Topic
+### YYYY-MM-DD — Topic
 
 #### What I worked on
 
@@ -54,7 +54,7 @@ Describe the next small validation step.
 
 ---
 
-## 2026-07-20 â€” Initial project framing
+## 2026-07-20 — Initial project framing
 
 #### What I worked on
 
@@ -87,11 +87,11 @@ Inventory the available source files, inspect the prepared expansion list and im
 
 ---
 
-## 2026-07-25 â€” Separating canonical cards from marketplace variants
+## 2026-07-25 — Separating canonical cards from marketplace variants
 
 #### What I worked on
 
-Compared Cardmarket product and price snapshots with PokÃ©mon TCG Data, Cardmarket entity documentation, a scraped Primal Clash product listing, and a concrete Vulpix Version 1 / Version 2 example.
+Compared Cardmarket product and price snapshots with Pokémon TCG Data, Cardmarket entity documentation, a scraped Primal Clash product listing, and a concrete Vulpix Version 1 / Version 2 example.
 
 #### What I learned
 
@@ -103,7 +103,7 @@ Cardmarket prices belong to market products, so a canonical-card price must be d
 
 The downloadable Cardmarket product file omits collector number, edition labels, language, and finish. Several products can therefore look identical in the reduced snapshot even when the marketplace treats them as different products. Matching by name or attack text alone is not sufficient for every record.
 
-The PokÃ©mon TCG Data repository is a useful structured catalogue source, but its publisher status must not be described as official without separate evidence.
+The Pokémon TCG Data repository is a useful structured catalogue source, but its publisher status must not be described as official without separate evidence.
 
 #### Decision or change
 
@@ -111,7 +111,7 @@ Accepted the following project decisions:
 
 - canonical cards are separate from Cardmarket products;
 - imported entities use source-scoped stable identifiers;
-- the conceptual hierarchy is `canonical card â†’ edition â†’ variant â†’ market product`;
+- the conceptual hierarchy is `canonical card → edition → variant → market product`;
 - initial supported market languages are English and German;
 - code cards and sealed products are excluded from the MVP catalogue;
 - the initial wishlist references the canonical card;
@@ -136,7 +136,7 @@ Complete a reproducible Primal Clash mapping fixture, classify confirmed and amb
 
 ---
 
-## 2026-07-27 â€” Replacing inferred product order with direct Cardmarket IDs
+## 2026-07-27 — Replacing inferred product order with direct Cardmarket IDs
 
 #### What I worked on
 
@@ -210,13 +210,13 @@ dependency before beginning the database schema.
 
 ---
 
-## 2026-07-27 â€” Turning repository plans into a validated GitHub workflow
+## 2026-07-27 — Turning repository plans into a validated GitHub workflow
 
 #### What I worked on
 
 Configured the GitHub Project for `Pokemon Card Wishlist`, created the initial
 M1 issue set, verified the published documentation links, and completed the
-`M1 â€” Repository foundation` exit review.
+`M1 — Repository foundation` exit review.
 
 #### What I learned
 
@@ -244,11 +244,11 @@ GitHub interface.
 
 #### Decision or change
 
-`M1 â€” Repository foundation` is completed and validated. The GitHub Project is
+`M1 — Repository foundation` is completed and validated. The GitHub Project is
 now the operational task-tracking layer, while the repository documents remain
 the source of scope, decisions, milestone criteria, and portfolio evidence.
 
-The current milestone advances to `M2 â€” Infrastructure`. Infrastructure work
+The current milestone advances to `M2 — Infrastructure`. Infrastructure work
 will continue one documented, reversible, and validated action at a time.
 
 #### Evidence
@@ -271,7 +271,7 @@ prepared environment.
 
 ---
 
-## 2026-07-28 â€” Building a reproducible local PostgreSQL workflow
+## 2026-07-28 — Building a reproducible local PostgreSQL workflow
 
 #### What I worked on
 
@@ -352,7 +352,7 @@ output against executable database checks.
 
 ---
 
-## 2026-07-29 â€” Turning the conceptual model into validated migrations
+## 2026-07-29 — Turning the conceptual model into validated migrations
 
 #### What I worked on
 
@@ -429,7 +429,7 @@ uncontrolled duplicates or modifying wishlist-owned data.
 
 ---
 
-## 2026-07-30 â€” Validating staged Cardmarket product imports with real source conditions
+## 2026-07-30 — Validating staged Cardmarket product imports with real source conditions
 
 #### What I worked on
 
@@ -471,7 +471,7 @@ prove Cardmarket's original timezone semantics.
 #### Decision or change
 
 The Cardmarket product import now uses the lifecycle
-`validated â†’ merge_started â†’ succeeded`. The source timestamp sentinel is
+`validated → merge_started → succeeded`. The source timestamp sentinel is
 normalized to `NULL`, Online Code Card products are recorded as explicit skipped
 outcomes, and no schema migration is introduced unless a later import confirms a
 real modelling problem.
@@ -499,7 +499,7 @@ production handling for confirmed mappings, six
 
 ---
 
-## 2026-07-31 â€” Preserving mapping state and repeated import evidence
+## 2026-07-31 — Preserving mapping state and repeated import evidence
 
 #### What I worked on
 
@@ -567,7 +567,7 @@ English or German `avg30` rule for the canonical-card `From` price.
 
 ---
 
-## 2026-08-03 â€” Validating append-only market price snapshots and runtime aggregation
+## 2026-08-03 — Validating append-only market price snapshots and runtime aggregation
 
 #### What I worked on
 
@@ -647,3 +647,71 @@ the MVP formula.
 Complete the M4 documentation and validation report, then decide whether edition
 and variant derivation belongs in the current milestone or should be explicitly
 deferred without blocking the validated canonical-card price path.
+
+---
+
+## 2026-08-03 — Deferring derivation when evidence proves only card scope
+
+#### What I worked on
+
+Reviewed every Primal Clash mapping row containing a Cardmarket edition code and
+validated whether the available evidence supports card-, edition-, or
+variant-level production records.
+
+The review covered `12` edition-code rows: `10` candidate mappings and `2`
+excluded oversized products. I also checked the production counts and reran the
+permanent runtime canonical-card price validator.
+
+#### What I learned
+
+A source label that looks like an edition code is not automatically a stable
+catalogue edition identity. The values `V1` and `V2` occur in different contexts:
+multiple products for one canonical card, separate canonical cards with different
+collector numbers, and excluded oversized products.
+
+Direct `idProduct` evidence can prove the relationship between a canonical card
+and a Cardmarket product without proving the product's edition, language, or
+finish. Production data should therefore be created only at the most specific
+scope supported by evidence.
+
+#### What was difficult
+
+The accepted conceptual hierarchy includes editions and language and finish
+variants, while the current vertical-slice sources do not provide enough metadata
+to populate those entities safely. Populating the tables would make the model
+look more complete, but would require guessed values and make later correction
+more difficult.
+
+#### Decision or change
+
+Accepted `ADR-013 — Defer automatic edition and variant derivation`.
+
+The Primal Clash import remains at canonical-card mapping scope. Edition codes
+are preserved as evidence, but automatic `card_editions` and `card_variants`
+creation is deferred until a controlled source or review process proves edition
+identity, language, and finish.
+
+The empty production tables are treated as a documented limitation rather than
+an import failure.
+
+#### Evidence
+
+- `12` mapping rows with edition codes;
+- `10` candidate rows confirmed only at card scope;
+- `2` excluded oversized rows;
+- `0` edition-scope candidate mappings;
+- `0` variant-scope candidate mappings;
+- `card_editions`: `0`;
+- `card_variants`: `0`;
+- active `card_market_product_mappings`: `165`;
+- `market_price_snapshots`: `173`;
+- canonical cards with runtime `From` prices: `164`;
+- runtime validation result:
+  `Primal Clash runtime From price validation passed`;
+- `ADR-013` in `DECISIONS.md`.
+
+#### Next experiment
+
+Prepare the consolidated Primal Clash import validation report and verify the
+remaining M4 exit criteria without claiming unsupported edition or variant
+coverage.
