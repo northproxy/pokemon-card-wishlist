@@ -69,6 +69,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Append-only Cardmarket price production merge in `scripts/import/merge_primal_clash_market_prices.py`.
 - Controlled Cardmarket price production-merge rollback utility in `scripts/import/fail_merge_primal_clash_market_prices.py`.
 - Permanent runtime canonical-card `From` price validator in `scripts/database/validate_primal_clash_from_prices.sql`.
+- Consolidated Primal Clash import validation report in `docs/import/primal-clash-import-validation-report.md`.
+- Formal M4 milestone exit review in `docs/import/m4-first-import-exit-review.md`.
 
 ### Changed
 
@@ -96,6 +98,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Advanced the M4 focus from completed Cardmarket price implementation to edition and variant scope resolution and the final Primal Clash validation report.
 - Accepted `ADR-013`, deferring automatic edition and variant derivation until controlled evidence proves edition identity, language, and finish.
 - Advanced the remaining M4 focus to the consolidated Primal Clash import validation report and exit review.
+- Completed the `M4 — First import` exit review and returned the active project focus to `M2 — Infrastructure`.
+- Updated project status documentation to distinguish the completed Primal Clash import from the still-planned application and Raspberry Pi deployment.
 - Extended the Primal Clash source-to-target contract with the validated Cardmarket price staging, append-only snapshot, rollback, repeat-merge, and runtime `MIN(avg30)` rules.
 - Documented the source missing-value normalization rule `0000-00-00 00:00:00` → `NULL` for Cardmarket product timestamps.
 - Documented explicit skipped-outcome handling for Online Code Card products outside MVP collection scope.
@@ -167,6 +171,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Confirmed the runtime price rule uses the latest eligible successful snapshot per market product and calculates `MIN(avg30)` without using `avg30_holo`.
 - Confirmed the runtime result can be labelled `From` and `30-day average`.
 
+- Completed and validated `M4 — First import` on 2026-08-03.
+- Confirmed the final Primal Clash production state of `164` active canonical cards, `173` active Cardmarket products, `165` active canonical-card mappings, `173` append-only price snapshots, and `164` canonical cards with runtime `From` prices.
+- Confirmed that all M4 exit criteria pass: complete or explicitly reconciled source scope, image coverage, repeat-import safety, visible rejected and unmatched states, and stored import evidence.
+- Confirmed that controlled product, mapping, and price failures leave no partial accepted production state.
+- Confirmed that `0` `card_editions` and `0` `card_variants` are an accepted non-blocking limitation under `ADR-013` rather than an import failure.
+
 ### Security
 
 - Documented the initial security baseline.
@@ -188,6 +198,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added local PostgreSQL setup and troubleshooting documentation.
 - Added a README link to the local PostgreSQL development guide.
 - Added a README link to the image download utilities documentation.
+- Added README links to the consolidated Primal Clash validation report and M4 exit review.
+- Updated `PROJECT.md`, `ROADMAP.md`, and `README.md` to mark M4 completed and validated.
 
 ### Planned
 
@@ -197,7 +209,6 @@ The following remain planned and are not yet implemented or validated:
 - Raspberry Pi PostgreSQL deployment and persistent SSD storage;
 - NocoDB deployment;
 - Tailscale private access;
-- remaining M4 consolidated validation-report and exit-review work;
 - controlled edition and variant classification and backfill;
 - wishlist workflow;
 - CSV export;

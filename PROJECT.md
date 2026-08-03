@@ -10,11 +10,12 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
 
 ## Current status
 
-- Current milestone: `M4 — First import`
+- Current milestone: `M2 — Infrastructure`
 - Completed milestones:
   - `M0 — Discovery` completed and validated on 2026-07-27;
   - `M1 — Repository foundation` completed and validated on 2026-07-27;
-  - `M3 — Data model` implemented and locally validated on 2026-07-29.
+  - `M3 — Data model` implemented and locally validated on 2026-07-29;
+  - `M4 — First import` completed and validated on 2026-08-03.
 - Database implementation status: Physical PostgreSQL schema implemented and locally validated
   - `21` project tables are implemented through `17` reversible dbmate migrations;
   - `22` tables exist in `public` together with `schema_migrations`;
@@ -26,32 +27,28 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
   - the local development environment includes WSL 2, Docker Desktop, PostgreSQL 17, DBeaver Community, dbmate, and Docker Compose;
   - PostgreSQL is reachable locally only through `127.0.0.1`;
   - Raspberry Pi deployment, NocoDB, Tailscale, persistent SSD deployment, backup, and restore remain planned and unvalidated.
-- Primary focus: Complete the consolidated Primal Clash import validation report and M4 exit review after accepting the edition and variant derivation deferral
+- Primary focus: Resume `M2 — Infrastructure` and establish the deployable platform required for the mobile wishlist workflow
 - First delivery target: Primal Clash (`xy5`, Cardmarket expansion `1585`) as a validated vertical slice
-- Vertical-slice mapping fixture status: Validated
-  - `164` canonical cards are covered;
-  - `165` Cardmarket products are confirmed at canonical-card scope;
+- Vertical-slice import status: Completed and validated
+  - `164` canonical cards are active;
+  - `173` Cardmarket market products are active;
+  - `165` canonical-card mappings are active;
+  - `173` append-only market price snapshots are stored;
+  - all `164` canonical cards have a validated runtime `From` price;
   - `2` oversized products are preserved as resolved exclusions;
   - `4` Online Code Card records are preserved as skipped audit outcomes;
   - `6` unlisted duplicate-like products are preserved as `unmatched_duplicate_candidate`;
-  - no ambiguous, conflicting, or ordinary unmatched mapping rows remain.
-- Import implementation status: In progress
-  - canonical Primal Clash cards have been imported and repeat-merge idempotency has been validated;
-  - the Cardmarket product path from `cardmarket-products.json` through `staging_market_products` to `market_products` is implemented and validated;
-  - `177` product records are staged per run, `173` eligible products are active in production, and `4` Online Code Card products are recorded as skipped;
-  - repeated Cardmarket product merge produces `173` unchanged and `4` skipped outcomes without duplicates;
-  - the Cardmarket mapping path through cases, observations, candidates, status history, and active production mappings is implemented and validated;
-  - the first mapping merge produced `165` inserted mappings and `12` skipped outcomes;
-  - the repeated mapping merge produced `165` unchanged mappings and `12` skipped outcomes without new cases, mappings, or status transitions;
-  - the Cardmarket price path from `cardmarket-prices.json` through `staging_market_prices` to append-only `market_price_snapshots` is implemented and validated;
-  - the first price merge produced `173` inserted snapshots and `4` skipped Online Code Card outcomes;
-  - the repeated price merge produced `173` unchanged snapshots and `4` skipped outcomes without duplicate snapshot identities;
-  - runtime validation confirmed `165` active mapped market products and `164` canonical cards with a minimum non-null `avg30` `From` price;
-  - `ADR-013` is accepted: automatic edition and variant derivation is deferred because the current evidence supports only card-level mappings;
-  - `card_editions` and `card_variants` remain empty by design for the Primal Clash vertical slice;
-  - the complete M4 validation report remains incomplete.
-- Image workflow status: Repeatable download workflow implemented separately and recorded in commit `ad3a2d9`; no further image work is required before the price import unless database integration exposes a dependency
-- Next concrete block: Prepare the complete Primal Clash import validation report and perform the M4 exit review
+  - no ambiguous, conflicting, or ordinary unmatched mapping rows remain;
+  - `card_editions` and `card_variants` remain empty by design under accepted `ADR-013`.
+- Import implementation status: Completed and validated for the Primal Clash canonical-card vertical slice
+  - canonical-card, Cardmarket product, mapping, and price imports are implemented;
+  - staging, validation, transactional merge, rollback, repeat-import, and per-record audit behaviour are validated;
+  - repeated imports create no uncontrolled production duplicates;
+  - runtime pricing uses the latest eligible successful snapshot per active market product and calculates `MIN(avg30)`;
+  - the consolidated validation report is stored in `docs/import/primal-clash-import-validation-report.md`;
+  - the formal exit review is stored in `docs/import/m4-first-import-exit-review.md`.
+- Image workflow status: Repeatable download workflow implemented and validated with `328` local PNG files and no missing Primal Clash images
+- Next concrete block: Prepare and validate the Raspberry Pi deployment foundation, beginning with the M2 infrastructure issue and its dependencies
 
 ## Delivery principles
 
@@ -175,44 +172,51 @@ Exit criteria status:
 - repeated import behaviour is defined through `ADR-008`: satisfied;
 - wishlist data remains independent from staging data: satisfied and schema-validated;
 - schema assumptions are documented: satisfied;
-- first-import and repeat-import runtime validation remain part of `M4 — First import`.
+- first-import and repeat-import runtime validation were completed during `M4 — First import`.
 
 ### M4 — First import
 
-**Status:** In progress
+**Status:** Completed and validated on 2026-08-03
 
 **Goal:** Import and validate one complete expansion.
 
-Completed or validated deliverables:
+Completed deliverables:
 
 - controlled Primal Clash fixtures;
 - canonical-card staging and production merge;
 - Cardmarket product source-to-target contract;
 - Cardmarket product staging importer, rollback injector, and production merge script;
-- repeat staging and repeat production merge validation;
+- Cardmarket mapping staging, pre-merge validation, rollback, production merge, repeat merge, and audit reconciliation;
+- Cardmarket price staging, staging rollback, append-only production merge, production rollback, and repeat merge;
 - duplicate prevention and complete per-record audit outcomes;
-- explicit Online Code Card exclusion handling;
-- Cardmarket mapping staging, transactional rollback, production merge, repeat merge, and audit reconciliation;
-- `173` persistent mapping cases, `165` active card-level mappings, and preserved exclusion and unmatched review states;
-- Cardmarket price staging importer and staging rollback validation;
-- append-only Cardmarket price production merge and production rollback validation;
-- repeated price merge with `173` unchanged snapshots and no duplicate snapshot identities;
+- explicit Online Code Card, oversized-product, and unresolved duplicate-candidate handling;
+- deterministic image metadata and local image-file validation;
 - permanent runtime validator for the minimum non-null `avg30` canonical-card `From` price;
-- validated final price state of `173` snapshots, `165` active mapped products, and `164` priced canonical cards.
+- consolidated validation report in `docs/import/primal-clash-import-validation-report.md`;
+- formal exit review in `docs/import/m4-first-import-exit-review.md`.
 
-Remaining deliverables:
+Validated result:
 
-- automatic card-edition and card-variant derivation explicitly deferred through accepted `ADR-013`, with card-level evidence and production counts validated;
-- rejected, unmatched, duplicate, and missing-image reporting for the complete vertical slice;
-- complete M4 import validation report.
+- `164` active canonical cards;
+- `173` active Cardmarket market products;
+- `165` active canonical-card mappings;
+- `173` append-only market price snapshots;
+- `164` canonical cards with runtime `From` prices;
+- `0` duplicate market-product source identities;
+- `0` duplicate price-snapshot identities;
+- `0` `card_editions` and `0` `card_variants` by design under `ADR-013`.
 
-Exit criteria:
+Exit criteria status:
 
-- the selected expansion is imported completely or discrepancies are documented;
-- image mapping is validated;
-- repeated import does not create uncontrolled duplicates;
-- rejected and unmatched records are visible;
-- import evidence is stored.
+- the selected expansion is imported completely or discrepancies are documented: satisfied;
+- image mapping is validated: satisfied;
+- repeated import does not create uncontrolled duplicates: satisfied;
+- rejected and unmatched records are visible: satisfied;
+- import evidence is stored: satisfied.
+
+Known limitations do not block M4 completion. Edition and variant derivation,
+the user-facing no-price branch, application workflows, Raspberry Pi deployment,
+and broader catalogue coverage remain explicitly deferred to later work.
 
 ### M5 — Wishlist workflow
 

@@ -715,3 +715,79 @@ an import failure.
 Prepare the consolidated Primal Clash import validation report and verify the
 remaining M4 exit criteria without claiming unsupported edition or variant
 coverage.
+
+## 2026-08-03 — Closing a milestone at the evidence-supported scope
+
+#### What I worked on
+
+Consolidated the complete Primal Clash import evidence, reviewed the result
+against the formal `M4 — First import` exit criteria, and prepared the milestone
+exit review.
+
+The review covered canonical cards, Cardmarket products, mapping evidence,
+append-only prices, runtime aggregation, local images, repeated imports,
+transaction rollback, unresolved records, and the accepted edition and variant
+scope limitation.
+
+#### What I learned
+
+A milestone can be complete without every table in the conceptual model being
+populated, provided the implemented scope is explicit, the missing data is not
+invented, and the formal exit criteria are satisfied.
+
+Idempotency also has different meanings across the model. Stable current-state
+entities should remain unchanged, evidence tables may receive new observations,
+and append-only snapshots must reject or classify an identical identity without
+overwriting history.
+
+A documented limitation is different from a blocker. Empty edition and variant
+tables would be a blocker only if M4 claimed validated edition- or
+variant-specific workflows. They do not block the validated canonical-card
+import and price path accepted under `ADR-013`.
+
+#### What was difficult
+
+The main challenge was separating M4 completion from complete MVP completion.
+The import vertical slice is validated, while NocoDB, mobile access, wishlist
+interaction, CSV export, Raspberry Pi deployment, backup, and restore remain
+unimplemented.
+
+It was also necessary to avoid treating complete price coverage in the current
+fixture as proof of the user-facing no-price branch. The SQL semantics support a
+missing result, but the fixture does not independently exercise that case.
+
+#### Decision or change
+
+`M4 — First import` is completed and validated on 2026-08-03 at canonical-card
+scope.
+
+The validated final state is:
+
+- `164` active canonical cards;
+- `173` active Cardmarket market products;
+- `165` active canonical-card mappings;
+- `173` append-only market price snapshots;
+- `164` canonical cards with runtime `From` prices;
+- `0` `card_editions` and `0` `card_variants` by design under `ADR-013`.
+
+No known limitation blocks formal M4 completion. The active project focus
+returns to `M2 — Infrastructure` before the mobile wishlist workflow is
+validated.
+
+#### Evidence
+
+- `docs/import/primal-clash-import-validation-report.md`;
+- `docs/import/m4-first-import-exit-review.md`;
+- validation report commit `423d6a2`;
+- `ADR-013` in `DECISIONS.md`;
+- product import runs `4` and `6`;
+- mapping production runs `10` and `12`;
+- price import runs `13` and `15`;
+- `scripts/database/validate_schema.sql`;
+- `scripts/database/validate_primal_clash_from_prices.sql`.
+
+#### Next experiment
+
+Resume `M2 — Infrastructure` with one reproducible deployment block and validate
+the Raspberry Pi, SSD, Docker Compose, PostgreSQL, and NocoDB dependency chain
+before claiming the mobile wishlist workflow is ready.
