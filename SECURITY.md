@@ -6,7 +6,7 @@ Pokemon Card Wishlist is currently in active development.
 
 The current milestone is M2 — Infrastructure.
 
-`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27. `M3 — Data model` was completed and locally validated on 2026-07-29. `M4 — First import` was completed and validated on 2026-08-03. -->
+`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27. `M3 — Data model` was completed and locally validated on 2026-07-29. `M4 — First import` was completed and validated on 2026-08-03.
 
 The PostgreSQL schema and controlled Primal Clash import workflows have been implemented and validated in a local development environment.
 
