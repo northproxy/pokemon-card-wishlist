@@ -4,9 +4,15 @@
 
 Pokemon Card Wishlist is currently in active development.
 
-The current milestone is `M1 — Repository foundation`. Discovery tooling and the Primal Clash vertical-slice fixtures are validated, but application, database, infrastructure, deployment, authentication, backup, and remote-access controls have not yet been implemented.
+The current milestone is M2 — Infrastructure.
 
-Security procedures will be expanded as infrastructure and application components are introduced.
+`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27. `M3 — Data model` was completed and locally validated on 2026-07-29. `M4 — First import` was completed and validated on 2026-08-03. -->
+
+The PostgreSQL schema and controlled Primal Clash import workflows have been implemented and validated in a local development environment.
+
+Raspberry Pi deployment, NocoDB, private remote access, production secret management, backup and restore, and application-level authentication remain planned and unvalidated.
+
+Security procedures will be expanded and validated as infrastructure and application components are introduced.
 
 ## Supported versions
 

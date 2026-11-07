@@ -6,9 +6,15 @@ This project is a self-hosted Pokemon card catalogue and wishlist MVP. It is als
 
 ## Project status
 
-The current milestone is `M1 — Repository foundation`.
+The current milestone is `M2 — Infrastructure`.
 
-`M0 — Discovery` was completed and validated on 2026-07-27. Discovery tooling and the Primal Clash vertical-slice fixtures are validated. Application, database, and infrastructure implementation have not started.
+`M0 — Discovery` and `M1 — Repository foundation` were completed and validated on 2026-07-27.
+`M3 — Data model` was completed and locally validated on 2026-07-29.
+`M4 — First import` was completed and validated on 2026-08-03.
+
+The PostgreSQL schema, Primal Clash import pipelines, Cardmarket mappings, and imported price snapshots are implemented and validated locally.
+
+Raspberry Pi deployment, persistent infrastructure, private remote access, backup and restore, and the user-facing wishlist application remain planned and unvalidated.
 
 Before contributing, review:
 
