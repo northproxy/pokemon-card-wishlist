@@ -11,6 +11,8 @@ data/reports/*
 # Large image collections
 images/raw/*
 
+/prototypes
+
 # Preserve directory structure
 !data/raw/.gitkeep
 !data/staging/.gitkeep
