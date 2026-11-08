@@ -44,8 +44,8 @@ from urllib.request import Request, urlopen
 
 # External directory containing Pokémon TCG Data card JSON files.
 SOURCE_DIRECTORY = Path(
-    r"R:\_dev\Pokemon-cardmarket-bi"
-    r"\TEMP\pokemon-tcg-data-master\cards\en"
+    r"R:\_dev\Cardmarket Product Catalogue\sources"
+    r"\pokemon-tcg-data-master\cards\en"
 )
 
 # Repository-relative root directory for downloaded raw images.
