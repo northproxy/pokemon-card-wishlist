@@ -72,6 +72,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Consolidated Primal Clash import validation report in `docs/import/primal-clash-import-validation-report.md`.
 - Formal M4 milestone exit review in `docs/import/m4-first-import-exit-review.md`.
 
+- Canonical `me55c` fixture containing `30` records for 30th Celebration: Classic Collection, plus dedicated catalogue staging and production merge scripts.
+- Updated `scripts/images/download_card_images.py` source directory for the relocated Pokémon TCG Data files; its existing direct-image-URL handling supports ScryDex URLs.
+
 ### Changed
 
 - Updated the repository status from `M0 — Discovery` to `M1 — Repository foundation`.
@@ -105,6 +108,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Documented explicit skipped-outcome handling for Online Code Card products outside MVP collection scope.
 
 ### Validated
+
+- Validated the `me55c` canonical fixture: `30` cards and SHA-256 `b8b20bb7ee8bfb72ea00953be7cdad0b2d17a555866d9f39b2f19c31929cc121`.
+- Confirmed `me55c` staging import run `16` with `30` validated records and its production merge into expansion ID `3`: `30` inserted, `0` updated, `0` unchanged, `0` reactivated.
+- Confirmed the `me55c` production expansion contains `30` cards and downloaded `60` local images with `0` failures, `0` invalid records and `0` missing-image records.
+- `me55c` market-product, mapping, and price imports remain out of scope of this validation; repeat-import and rollback behaviour for `me55c` are not yet validated.
 
 - Completed and validated `M0 — Discovery` on 2026-07-27.
 - Validated the Primal Clash vertical slice with:

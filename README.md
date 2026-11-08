@@ -14,6 +14,8 @@ The project is also a public learning portfolio. It is intended to demonstrate s
 
 The physical PostgreSQL schema contains `21` project tables implemented through `17` incremental `dbmate` migrations. The controlled Primal Clash import is complete at canonical-card scope, including staging, validation, transactional merges, rollback tests, repeated-import behaviour, audit evidence, image coverage, Cardmarket mappings, append-only price snapshots, and runtime `From` pricing.
 
+A second, catalogue-only expansion, **30th Celebration: Classic Collection** (`me55c`), was imported and locally validated in November 2026. Its validated production result is `30` active canonical cards in expansion ID `3` (import run ID `16`), with `60` PNG images downloaded under `images/raw/me55c/` and no download failures. The `me55c` canonical fixture and dedicated staging and merge scripts are tracked in the repository. Cardmarket products, mappings, pricing, and repeat-import/rollback validation have **not** been completed for `me55c`; this does not change the completed Primal Clash M4 evidence or the current M2 priority.
+
 The validated vertical slice includes:
 
 - Pokémon TCG Data set: `xy5`;
