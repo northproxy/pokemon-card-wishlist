@@ -10,6 +10,14 @@ Build a working self-hosted MVP while publicly demonstrating structured planning
 
 ## Current status
 
+- Infrastructure research direction (2026-11-09): evaluate OCI Always Free
+  as the candidate primary host for FastAPI, Caddy, and self-managed PostgreSQL
+  17 (`ADR-014`, Proposed). The existing frontend stays on web hosting, and
+  local PostgreSQL is preserved for development, off-cloud backup, and recovery.
+  No OCI deployment, primary database cutover, or backup/restore exercise has
+  been validated for this architecture.
+
+
 - Current milestone: `M2 — Infrastructure`
 - Completed milestones:
   - `M0 — Discovery` completed and validated on 2026-07-27;
@@ -123,6 +131,17 @@ Exit criteria:
 - planned, implemented, and validated work are distinguishable.
 
 ### M2 — Infrastructure
+
+**Cloud-primary alternative under evaluation (Proposed `ADR-014`):** Before
+changing the existing Raspberry Pi deliverables, verify OCI eligibility,
+quotas and cost protections, build a disposable ARM64 VM, validate secure
+PostgreSQL administration, and demonstrate off-cloud backup and clean local
+restore. A production migration must be supported by an approved cutover and
+rollback plan. The current M2 completion criteria require an explicit review
+before an OCI deployment can satisfy the milestone.
+
+**Earlier Raspberry Pi proposal — pending review:**
+
 
 **Goal:** Run the base platform on Raspberry Pi.
 
@@ -392,6 +411,8 @@ A task is done when:
 | Duplicate records are imported | High | Use a stable source key, database constraints, and repeat-import tests |
 | Wishlist data is damaged by catalogue updates | High | Separate wishlist data from staging and define update behaviour |
 | Raspberry Pi or SSD failure | High | Use SSD, separate backups, retention, and restore tests |
+| OCI Compute reclamation or unavailable A1 capacity | High | Keep independent off-cloud backups; validate rebuild and recovery without source VM |
+| Cloud database cutover or backup failure | High | Require successful clean restore and explicit rollback approval before changing the primary database |
 | NocoDB mobile UX is insufficient | Medium | Validate one full workflow before accepting ADR-001 |
 | Remote access is insecure | High | Use Tailscale, document exposure, and avoid public database ports |
 | Scope grows too quickly | Medium | Enforce MVP exclusions and milestone gates |

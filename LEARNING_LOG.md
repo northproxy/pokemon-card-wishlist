@@ -791,3 +791,45 @@ validated.
 Resume `M2 — Infrastructure` with one reproducible deployment block and validate
 the Raspberry Pi, SSD, Docker Compose, PostgreSQL, and NocoDB dependency chain
 before claiming the mobile wishlist workflow is ready.
+
+---
+
+## 2026-11-09 — Evaluating cloud-primary PostgreSQL hosting
+
+### What I worked on
+
+Reviewed the implications of hosting the Wishlist API and PostgreSQL on OCI
+Always Free instead of limiting cloud hosting to a stateless API. Compared
+cloud-primary operation with the earlier Raspberry Pi/NocoDB proposal and
+identified recovery requirements for a remote database.
+
+### What I learned
+
+Operating the primary database in the cloud would provide practical experience
+with remote administration, storage, network controls, migrations, and
+recovery. A logical replication subscriber is not a replacement for versioned
+backups because destructive changes can also replicate. Off-cloud restoration
+must remain possible without access to the OCI instance.
+
+### What was difficult
+
+Separating the learning objective from operational readiness. Actual tenancy
+quotas, VM availability, secure access, a tested cloud backup/restore process,
+and production migration are not yet validated.
+
+### Decision or change
+
+Proposed `ADR-014` and an OCI research track under `M2 — Infrastructure`. The
+existing local PostgreSQL environment remains unchanged. No production
+cutover or architecture supersession has been approved.
+
+### Evidence
+
+- Proposed `ADR-014` in `DECISIONS.md`.
+- OCI research plan in `PROJECT.md` and `ROADMAP.md`.
+- Official service terms and deployed validation evidence remain required.
+
+### Next experiment
+
+Verify the selected OCI tenancy's Always Free limits and build an isolated
+ARM64 sandbox without modifying the existing PostgreSQL installation.

@@ -17,6 +17,35 @@ It distinguishes planned work from implemented and validated results. Dates are 
 
 `M4 — First import` was completed and validated on 2026-08-03. The Primal Clash vertical slice contains `164` active canonical cards, `173` active Cardmarket products, `165` active canonical-card mappings, `173` append-only market price snapshots, and runtime `From` prices for all `164` canonical cards. Repeated imports create no uncontrolled production duplicates, controlled rollback tests leave no partial accepted state, and all exclusions and unresolved duplicate candidates remain visible. Automatic edition and variant derivation remains deferred through accepted `ADR-013`; `card_editions` and `card_variants` intentionally remain empty without invalidating the card-level import or pricing result.
 
+## OCI cloud-primary infrastructure research (Proposed)
+
+The owner has selected OCI Always Free as a cloud-infrastructure learning
+platform. `ADR-014` evaluates self-managed PostgreSQL 17, FastAPI, and Caddy
+on a cloud ARM64 VM while retaining the existing static frontend. This is a
+research track, not an implemented deployment or an accepted database cutover.
+
+Proposed validation sequence:
+
+1. Verify the actual tenancy limits, home region, ARM64 availability, billing
+   safeguards, network allowances, and storage quotas.
+2. Create a disposable OCI VM with Docker, private PostgreSQL access, and
+   explicitly bounded Always Free resources.
+3. Restore representative data to an isolated cloud database; validate
+   migrations, application access, and private administration.
+4. Export versioned off-cloud database backups and successfully restore to an
+   isolated local PostgreSQL instance.
+5. Prepare and approve a production migration and rollback procedure before
+   changing any primary database or application endpoint.
+6. Deploy authenticated FastAPI and Caddy and connect the static frontend after
+   the database and security gates pass.
+7. Optionally explore one-way PostgreSQL logical replication from OCI to a
+   separate local subscriber after baseline backup/restore is validated.
+
+The existing Raspberry Pi M2 requirements remain part of the previous
+proposal until a separate scope and milestone review resolves them.
+Replication is optional learning work and does not replace backup or become
+an automatic `v0.1.0` release prerequisite.
+
 ## Immediate implementation plan
 
 This is the agreed near-term working order. It does not change the formal milestone

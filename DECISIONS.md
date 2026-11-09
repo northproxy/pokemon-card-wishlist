@@ -2236,3 +2236,110 @@ canonical-card mappings or runtime pricing path.
   language, finish, backfill, conflict handling, and repeated-import behaviour.
 - Complete this follow-up before claiming full production support for English
   and German market variants or edition- and variant-based filtering and export.
+
+---
+
+## ADR-014 — Evaluate Oracle Cloud Always Free for primary application and database hosting
+
+- Status: Proposed
+- Date: 2026-11-09
+- Owners: Project owner
+- Supersedes: N/A
+
+### Context
+
+Pokemon Card Wishlist currently serves a static HTML/JavaScript frontend on an existing web host. The browser-local Wishlist MVP uses `localStorage`; durable Wishlist persistence in PostgreSQL remains a separate implementation task. PostgreSQL 17 and the project's schema, including `wishlist_items`, already exist in the local Docker Compose development environment.
+
+The earlier MVP infrastructure proposal focused on Raspberry Pi, NocoDB, and private remote access. The project owner also wants practical experience operating third-party cloud infrastructure, administering a remote PostgreSQL database, and demonstrating a recoverable cloud-to-local data workflow in a public engineering portfolio.
+
+Oracle Cloud Infrastructure (OCI) Always Free is the preferred platform to evaluate, not yet an approved production dependency. Always Free eligibility, regional shape capacity, account restrictions, quotas, and the risk of reclaiming underutilized Compute resources must be verified against current official documentation and the actual tenancy.
+
+### Proposed decision
+
+Evaluate a cloud-primary architecture with the following boundaries:
+
+- Keep the existing static frontend on its current web hosting.
+- Run Caddy, FastAPI, and PostgreSQL 17 in Docker Compose on an OCI Always Free ARM64 Compute instance, subject to quota and compatibility validation.
+- Use PostgreSQL on OCI as the *candidate* primary database only after a successful restore and cutover rehearsal.
+- Keep PostgreSQL off the public internet; restrict database access to the private container network and an authenticated encrypted administrative connection (for example, Tailscale or SSH tunnelling).
+- Connect the frontend to a separately authenticated HTTPS REST API. Never embed PostgreSQL credentials, long-lived API credentials, or private keys in browser JavaScript.
+- Preserve the existing local PostgreSQL environment. Create independent, versioned, off-cloud logical backups and test their restoration into a separate local database.
+- Evaluate one-way OCI-to-local PostgreSQL logical replication as an optional later learning exercise. Replication is not a backup and is not a release prerequisite.
+- Keep the initial cloud deployment reproducible and disposable; no irreplaceable application or database data may depend solely on an OCI tenancy.
+
+This ADR authorizes **research and a reversible sandbox proof of concept only**. It does not authorize destructive migration, changing the live database, switching production traffic, or accepting a replacement for the existing MVP deployment design. Those actions require a subsequent explicit review and approval.
+
+### Proposed topology
+
+```text
+Existing static frontend (www.nadadeneg.com/wishlist/)
+    |
+    | HTTPS + authenticated REST
+    v
+OCI Always Free Compute VM (ARM64)
+    |-- Caddy (public 443; optional 80 for TLS challenge)
+    |-- FastAPI (private Docker network)
+    |-- PostgreSQL 17 (private Docker network; persistent volume)
+    |
+    | Encrypted admin/backup connection
+    v
+Local environment
+    |-- versioned pg_dump archives, checksums and retention
+    |-- isolated PostgreSQL restore-test database
+    `-- optional later logical replication subscriber
+```
+
+### Alternatives considered
+
+#### OCI for API only; PostgreSQL remains local
+
+- Advantages: no database cutover; smaller initial data-loss surface; easy API redeployment.
+- Drawbacks: public API availability depends on the local database host and encrypted WAN connectivity; offers less practical cloud-database experience.
+
+#### OCI for API and PostgreSQL; local backup and recovery
+
+- Advantages: API-to-database traffic stays private and local to the VM; meets the cloud-infrastructure and remote-database learning objective; straightforward deployable topology.
+- Drawbacks: OCI capacity and instance reclaim risks; self-managed database administration; restores and off-cloud backups become critical.
+
+#### Raspberry Pi with NocoDB
+
+- Advantages: aligns with earlier MVP concept; local ownership and low cloud dependence.
+- Drawbacks: less experience with public cloud infrastructure and remotely operated databases; the current static frontend already reduces the value of introducing a parallel no-code UI.
+
+#### Paid VPS or managed PostgreSQL
+
+- Advantages: potentially more predictable availability or managed operations.
+- Drawbacks: recurring cost or free-trial expiration; does not satisfy the zero-recurring-cost experiment as well as a verified Always Free setup.
+
+### Risks and controls
+
+- **Availability and reclaim:** Oracle may reclaim underutilized Always Free Compute, and A1 capacity may be unavailable. Maintain a tested rebuild procedure and independent backups; do not claim an uptime SLA.
+- **Billing:** distinguish Always Free from trial credits, inspect tenancy type and quotas, avoid paid resources and accidental Pay As You Go usage, and record resource choices before provisioning.
+- **Database loss/corruption:** do not cut over before verified logical backup and clean restoration. Keep independent off-cloud copies and a documented rollback path.
+- **Replication:** DML deletion/corruption can replicate; logical replication does not automatically replicate schema DDL and requires sequence and lag management. Keep history-based backups even if replication is enabled.
+- **Network security:** never expose TCP 5432 publicly; apply OCI NSG/firewall rules, least-privilege PostgreSQL roles, restricted administrator access, TLS/HTTPS, secret management, and application authentication.
+- **Operational complexity:** document architecture, rebuild instructions, monitoring, storage utilization, logs, backup checks, and recovery validation.
+- **Existing decisions:** ADR-001 (NocoDB), ADR-003 (Tailscale use case), and ADR-004 (local image storage) remain Proposed. Their applicability must be explicitly reviewed before changing the platform. ADR-010 backup principles must be preserved, not silently replaced.
+
+### Validation
+
+The cloud-primary design may be considered for acceptance only after:
+
+1. Official Oracle Always Free rules, quotas, eligible shapes, disk/network allowances, home-region requirements, and billing safeguards have been recorded with an access date.
+2. A non-production OCI ARM64 VM has been created within confirmed Always Free quotas; the selected Python, Caddy, and PostgreSQL images work on ARM64.
+3. PostgreSQL is not reachable from the public internet; remote administration works through a secured private path.
+4. A disposable database receives the tracked migrations and representative test data; read/write operations and API connectivity work.
+5. A backup from the candidate cloud database is stored independently off-cloud and successfully restored to an isolated local PostgreSQL instance; schema, cards, wishlist items, quantities, notes, and referential integrity are checked.
+6. A VM-loss or rebuild exercise demonstrates an achievable recovery path without requiring an intact source VM.
+7. A migration and rollback plan is approved before moving or replacing the actual primary database.
+8. Caddy HTTPS, API authentication, CORS/CSRF posture, secret storage, and cloud access rules pass a documented review.
+9. Resource use and expected costs are monitored; no recurring paid resources are required in the validated configuration.
+10. Evidence, unresolved risks, and the project owner's final approval are recorded.
+
+### Follow-up
+
+- Create an M2 research issue for OCI hosting and cost/security/availability review.
+- Create separate implementation issues for OCI sandbox, cloud PostgreSQL, tested backup/restore, FastAPI deployment, and optional replication.
+- Update `STACK.md`, `PROJECT.md`, `ROADMAP.md`, `README.md`, `CHANGELOG.md`, and any conflicting MVP acceptance criteria only after reviewing the proposed edits together.
+- Before changing accepted architecture, record explicit supersession where necessary; never silently rewrite the original Raspberry Pi or NocoDB history.
+- Write a repeatable deployment guide only after commands and configuration have been tested on real OCI resources.

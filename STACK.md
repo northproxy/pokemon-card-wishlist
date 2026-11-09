@@ -26,6 +26,45 @@ The following remain proposed or planned for infrastructure and application mile
 
 The physical schema is documented in `docs/database/data-model.md`. Primal Clash import logic and runtime import validation remain part of `M4 — First import`.
 
+## OCI cloud-primary hosting research (Proposed, 2026-11-09)
+
+The project owner has selected Oracle Cloud Infrastructure (OCI) Always Free for a
+hands-on infrastructure research track. Under Proposed `ADR-014`, evaluate
+self-managed PostgreSQL 17, FastAPI, and Caddy on an OCI ARM64 Compute VM while
+keeping the existing static frontend on its current web host.
+
+This does not replace the locally validated PostgreSQL development environment.
+The cloud instance is initially a disposable sandbox, not an approved primary
+production database. Any cutover requires independently stored off-cloud
+backups, a successful clean local restore, a documented rollback plan, and
+explicit approval. One-way OCI-to-local logical replication is an optional
+later learning exercise, not a substitute for versioned backups or an MVP
+release dependency.
+
+The Raspberry Pi/NocoDB deployment below records the earlier proposal. Its
+selection and the relevant MVP exit criteria remain under review; no cloud
+hosting, cloud database, or production migration is claimed as implemented.
+
+### Candidate topology
+
+```text
+Existing static frontend (www.nadadeneg.com/wishlist/)
+    |
+    | HTTPS authenticated REST API
+    v
+OCI Always Free ARM64 VM (proposed)
+    |-- Caddy (public HTTPS)
+    |-- FastAPI (private container network)
+    `-- PostgreSQL 17 (private container network; persistent volume)
+            |
+            | Private encrypted backup/admin connection
+            v
+Local environment
+    |-- Versioned off-cloud pg_dump backups
+    |-- Isolated PostgreSQL restore-test database
+    `-- Optional later logical replication subscriber
+```
+
 ## Recommended MVP stack
 
 | Layer | Technology | Reason | Status |
@@ -45,6 +84,9 @@ The physical schema is documented in `docs/database/data-model.md`. Primal Clash
 | CI | GitHub Actions | Markdown checks first; automated tests later | Implemented and validated for Markdown |
 
 ## Architecture summary
+
+The following diagram is the *earlier* Raspberry Pi/NocoDB deployment proposal.
+The alternative OCI research architecture is documented above and in `ADR-014`.
 
 The proposed deployment model is:
 

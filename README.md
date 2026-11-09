@@ -14,8 +14,6 @@ The project is also a public learning portfolio. It is intended to demonstrate s
 
 The physical PostgreSQL schema contains `21` project tables implemented through `17` incremental `dbmate` migrations. The controlled Primal Clash import is complete at canonical-card scope, including staging, validation, transactional merges, rollback tests, repeated-import behaviour, audit evidence, image coverage, Cardmarket mappings, append-only price snapshots, and runtime `From` pricing.
 
-A second, catalogue-only expansion, **30th Celebration: Classic Collection** (`me55c`), was imported and locally validated in November 2026. Its validated production result is `30` active canonical cards in expansion ID `3` (import run ID `16`), with `60` PNG images downloaded under `images/raw/me55c/` and no download failures. The `me55c` canonical fixture and dedicated staging and merge scripts are tracked in the repository. Cardmarket products, mappings, pricing, and repeat-import/rollback validation have **not** been completed for `me55c`; this does not change the completed Primal Clash M4 evidence or the current M2 priority.
-
 The validated vertical slice includes:
 
 - Pokémon TCG Data set: `xy5`;
@@ -38,6 +36,14 @@ The validated vertical slice includes:
 The consolidated evidence is available in the [Primal Clash import validation report](docs/import/primal-clash-import-validation-report.md) and the [M4 first-import exit review](docs/import/m4-first-import-exit-review.md).
 
 The current priority is to resume `M2 — Infrastructure`: Raspberry Pi deployment, SSD-backed persistence, NocoDB, private access, backup, restore, and restart recovery remain planned and unvalidated. The application and wishlist workflow have not started.
+
+**Infrastructure research (2026-11-09):** Oracle Cloud Infrastructure
+Always Free is being evaluated as primary hosting for FastAPI, Caddy, and
+self-managed PostgreSQL 17 while keeping the existing static frontend. The
+local PostgreSQL environment remains in place. Off-cloud backups, clean restore
+validation, and an approved rollback plan are prerequisites to any database
+cutover. See [ADR-014](DECISIONS.md#adr-014--evaluate-oracle-cloud-always-free-for-primary-application-and-database-hosting).
+This architecture is **Proposed**, not deployed or validated.
 
 ## Project goals
 
@@ -76,6 +82,10 @@ The initial wishlist references the canonical card, for example `xy5-20`. Editio
 8. Export selected cards to CSV.
 
 ## Proposed MVP stack
+
+The Raspberry Pi/NocoDB choices below are the earlier deployment proposal,
+now under review alongside the OCI cloud-primary research track.
+
 
 - Raspberry Pi 4 or 5
 - Raspberry Pi OS Lite 64-bit
