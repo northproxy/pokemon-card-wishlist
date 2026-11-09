@@ -9,13 +9,46 @@ It distinguishes planned work from implemented and validated results. Dates are 
 - Current milestone: `M2 — Infrastructure`
 - Completed milestones: `M0 — Discovery`, `M1 — Repository foundation`, `M3 — Data model`, `M4 — First import`
 - First planned release: `v0.1.0`
-- Application implementation status: Not started
+- Application implementation status: Local static gallery prototype implemented and browser-tested for `xy5` and `me55c`; the persistent wishlist application has not started
 - Database implementation status: Physical PostgreSQL schema implemented and locally validated
 - Infrastructure implementation status: Local development database environment available; Raspberry Pi deployment remains not started
-- Import implementation status: Primal Clash canonical-card vertical slice completed and validated
-- Current block: Resume M2 infrastructure implementation and prepare the deployable platform required for M5
+- Import implementation status: Primal Clash full vertical slice completed and validated; `me55c` canonical catalogue import completed and validated (30 cards), without Cardmarket mapping or pricing
+- Immediate work: Import `swsh11.json` as the next expansion, then implement a local Wishlist prototype in the gallery; M2 infrastructure remains the formal active milestone and is not complete
 
 `M4 — First import` was completed and validated on 2026-08-03. The Primal Clash vertical slice contains `164` active canonical cards, `173` active Cardmarket products, `165` active canonical-card mappings, `173` append-only market price snapshots, and runtime `From` prices for all `164` canonical cards. Repeated imports create no uncontrolled production duplicates, controlled rollback tests leave no partial accepted state, and all exclusions and unresolved duplicate candidates remain visible. Automatic edition and variant derivation remains deferred through accepted `ADR-013`; `card_editions` and `card_variants` intentionally remain empty without invalidating the card-level import or pricing result.
+
+## Immediate implementation plan
+
+This is the agreed near-term working order. It does not change the formal milestone
+completion criteria or the release gates below. Each item remains planned until its
+own implementation and validation evidence is recorded.
+
+1. **Import `swsh11.json` (next):** inspect the source file, confirm set identity
+   and record count, prepare a controlled canonical-card fixture, validate and
+   stage records, review the results, perform a transactional catalogue merge,
+   download and validate images, and add the expansion to the local gallery.
+   Cardmarket product mapping and prices are separate follow-up work.
+2. **Wishlist in the gallery:** add a heart/wanted toggle to cards, a Wishlist-only
+   view, and browser `localStorage` persistence; verify selections survive a
+   refresh and work across the imported expansions. This is a **prototype**:
+   browser-local storage is not the permanent M5 data store.
+3. **Persist the Wishlist in PostgreSQL:** design a controlled application access
+   path (never expose database credentials in browser code), store wanted state,
+   quantity, and notes, and test persistence and data isolation.
+4. **Export Wishlist to CSV:** include card identity, expansion, collector number,
+   quantity, and notes; test export and encoding.
+5. **Complete M2 infrastructure:** prepare Raspberry Pi deployment, SSD-backed
+   persistence, private access, backups, restore tests, and restart recovery.
+   These are still release blockers even if prototype work happens first.
+6. **Expand catalogue and market data:** add Cardmarket mappings and pricing for
+   supported new expansions (including `me55c` when data is available), improve
+   repeatable batch imports, and retain explicit unresolved-record reporting.
+
+**Current validated catalogue and gallery baseline:** Primal Clash (`xy5`) has
+164 canonical cards and 328 downloaded images; 30th Celebration: Classic
+Collection (`me55c`) has 30 canonical cards and 60 downloaded images. A local
+browser gallery for both expansions has been tested. This does not imply
+Wishlist persistence or pricing coverage for `me55c`.
 
 ## Release strategy
 
@@ -50,6 +83,8 @@ The release depends on successful completion of:
 7. `M7 — MVP release`
 
 Later milestones must not bypass unresolved dependencies from earlier milestones.
+The immediate prototype order above is an implementation sequence, not a declaration
+that M2 or M5 release gates have been met.
 
 ## Milestone roadmap
 
